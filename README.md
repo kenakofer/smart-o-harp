@@ -81,9 +81,7 @@ See the [Wikipedia article](https://en.wikipedia.org/wiki/Harmonic) if you don't
 
 That point on the string is a harmonic node, and is a very bad location for a felt to touch the string to keep it from sounding. There are other harmonic nodes at `(1/3, 2/3, 1/4, 3/4, 1/5, 2/5, ...)` etc. (all the rational numbers between 0 and 1). As the denominator gets bigger, the sound from it gets weaker.
 
-Whenever we mess with positions of bars and felts on the autoharp, we need to keep this consideration a priority to minimize extraneous noise while strumming. It's quite helpful to mark all the harmonic nodes on the autoharp (e.g. with a red marker) before deciding on bar placements. 
-
-It is quite the puzzle to align this with other desires and requirements!
+Whenever we mess with positions of bars and felts on the autoharp, we need to keep this consideration a priority to minimize extraneous noise while strumming. Consider marking all the harmonic nodes on the strings (e.g. with a red marker) before deciding on bar/felt placements that avoid those spots.
 
 #### Keypad &rarr; Notes logic (TODO)
 
