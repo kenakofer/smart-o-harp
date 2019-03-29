@@ -83,6 +83,32 @@ That point on the string is a harmonic node, and is a very bad location for a fe
 
 Whenever we mess with positions of bars and felts on the autoharp, we need to keep this consideration a priority to minimize extraneous noise while strumming. Consider marking all the harmonic nodes on the strings (e.g. with a red marker) before deciding on bar/felt placements that avoid those spots.
 
-#### Keypad &rarr; Notes logic (TODO)
+#### Keypad &rarr; Notes logic
+
+This project has the opportunity for a very consistent, learnable, erganomic, key agnostic chord control mechanism. Optimizing for all these is a real puzzle. We'll start 
+
+In a major key, here are the roman numeral chords I want easy access to, in decreasing order of importance: `(I, V(7), IV, vi, ii, II(7), iii, III(7), vii&deg;, VI, VIIb, ...)`  I have high uncertainty after halfway through that list.
+
+Similarly, in a minor key (using the roman numeral `vi` as the tonic chord for consistency): `(vi, iii, III(7), ii, V(7), I, IV, ...)` I have high enough uncertainty that I won't even try to add more.
+
+Songs with the richest harmonies have both minor and major progressions in them, so it behooves us to not only make the system key agnostic, but also *tonality agnostic* (a term I just made up: a song that starts major and then goes minor or vice versa shouldn't throw us for a loop).
+
+The first 7 elements of each list have 6 in common, which (probably due to some arcane property of (meta-)music-theory) are also six-in-a-row around the circle of fifths: `(IV, I, V, ii, vi, iii)`. 
+
+Or, arranging them in rows as autoharpists typically do:
+
+| IV  | I   | V   |
+| --- | --- | --- |
+| ii  | vi  | iii |
+
+This seems like an optimal arrangement of 6 buttons for playing diatonically, to be key and tonality agnostic. I'll treat these 6 chords as the core chords, which should be accessible through a single button press.
+
+To actually make it key agnostic though, there needs to be a way to play in more than one key. We could do this with static buttons by having 24 buttons that we could arrange in 2 literal circles of fifths. The circles could be one inside the other, and then we literally have a circle of fifths as a control board:
+
+![major minor circle of fifths](https://www.dummies.com/wp-content/uploads/104975.image0.jpg)
+
+24 buttons is a lot to just give us all the major minor keys. We can instead do it by having those 6 buttons plus 2 buttons for changing a programmatic variable that remembers our key. Each button can change the key one direction or another around the circle of fifths. This has the disadvantage of not being able to jump to some arbitrary chord outside the key: VIIb and VIb come to mind as somewhat common examples.
+
+We can expand the possibilities of these chords with modifiers, in decreasing order of importance and increasing order of my excitement: Adding a minor seventh, switching major/minor to minor/major respectively, diminishing the chord, sus4-ing the chord (!!), adding a major seventh to the chord (!!!), augmenting the chord (!!!!), maybe add6 add2 stuff, etc.
 
 #### Arduino setup (TODO)
