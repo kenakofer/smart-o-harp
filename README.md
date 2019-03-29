@@ -83,7 +83,9 @@ That point on the string is a harmonic node, and is a very bad location for a fe
 
 Whenever we mess with positions of bars and felts on the autoharp, we need to keep this consideration a priority to minimize extraneous noise while strumming. Consider marking all the harmonic nodes on the strings (e.g. with a red marker) before deciding on bar/felt placements that avoid those spots.
 
-#### Keypad &rarr; Notes logic
+-------------
+
+## Keypad &rarr; Notes logic
 
 This project has the opportunity for a very consistent, learnable, erganomic, key agnostic chord control mechanism. Optimizing for all these is a real puzzle. We'll start 
 
