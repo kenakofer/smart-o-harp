@@ -96,6 +96,7 @@ Songs with the richest harmonies have both minor and major progressions in them,
 The first 7 elements of each list have 6 in common, which (probably due to some arcane property of (meta-)music-theory) are also six-in-a-row around the circle of fifths: `(IV, I, V, ii, vi, iii)`. 
 
 Or, arranging them in rows as autoharpists typically do:
+
 |     |     |     |
 | --- | --- | --- |
 | IV  | I   | V   |
