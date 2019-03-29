@@ -1,6 +1,3 @@
-## Smart-O-Harp
-#### A poorly named but versatile electronic autoharp design
-
 This site details an ongoing project to improve the chord selection mechanism on chromatic Autoharps/Chromaharps (hereafter called just "autoharps"). An arduino reads inputs from a keypad, computes the desired chord from the keypresses, and mechanically dampens the undesired strings. 
 
 It does *not* strum or pluck for the human, nor does it change chords without human input.
