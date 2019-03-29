@@ -8,6 +8,8 @@ See [Motivations](#motivation) for why this project is useful.
 
 See [Dampening Mechanism](#dampening-mechanism) for an for detailed analysis of dampening mechanism possibilities.
 
+See [Avoiding harmonic nodes](#avoiding-harmonic-nodes) on the importance of considering harmonics when experimenting.
+
 --------
 
 ## Motivation
@@ -71,7 +73,17 @@ Like the last in terms of the single note bars. For each bar: Tie a string to ea
 
 **Cons**: Starting to get quite complicated.
 
-#### Avoiding harmonic nodes (TODO)
+--------
+
+## Avoiding harmonic nodes
+
+See the [Wikipedia article](https://en.wikipedia.org/wiki/Harmonic) if you don't know what a harmonic node is. To experience it, place your finger or an eraser exactly halfway along a string, and pluck the string. An octave above the string's note will resonate. Slide along the string to find other points where the string will still sound.
+
+That point on the string is a harmonic node, and is a very bad location for a felt to touch the string to keep it from sounding. There are other harmonic nodes at `(1/3, 2/3, 1/4, 3/4, 1/5, 2/5, ...)` etc. (all the rational numbers between 0 and 1). As the denominator gets bigger, the sound from it gets weaker.
+
+Whenever we mess with positions of bars and felts on the autoharp, we need to keep this consideration a priority to minimize extraneous noise while strumming. It's quite helpful to mark all the harmonic nodes on the autoharp (e.g. with a red marker) before deciding on bar placements. 
+
+It is quite the puzzle to align this with other desires and requirements!
 
 #### Keypad &rarr; Notes logic (TODO)
 
