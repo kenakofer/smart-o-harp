@@ -2,7 +2,7 @@
 
 This site details an ongoing project to improve the chord selection mechanism on chromatic Autoharps/Chromaharps (hereafter called just "autoharps"). An arduino reads inputs from a keypad, computes the desired chord from the keypresses, and mechanically dampens the undesired strings. 
 
-It does *not* strum or pluck for the human, nor does it change chords without human input.
+It does **not** strum or pluck for the human, nor does it change chords without human input.
 
 See [Motivations](#motivation) for why this project is useful.
 
