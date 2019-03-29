@@ -96,9 +96,9 @@ Songs with the richest harmonies have both minor and major progressions in them,
 The first 7 elements of each list have 6 in common, which (probably due to some arcane property of (meta-)music-theory) are also six-in-a-row around the circle of fifths: `(IV, I, V, ii, vi, iii)`. 
 
 Or, arranging them in rows as autoharpists typically do:
-
-| IV  | I   | V   |
+|     |     |     |
 | --- | --- | --- |
+| IV  | I   | V   |
 | ii  | vi  | iii |
 
 This seems like an optimal arrangement of 6 buttons for playing diatonically, to be key and tonality agnostic. I'll treat these 6 chords as the core chords, which should be accessible through a single button press.
@@ -107,8 +107,16 @@ To actually make it key agnostic though, there needs to be a way to play in more
 
 ![major minor circle of fifths](https://www.dummies.com/wp-content/uploads/104975.image0.jpg)
 
-24 buttons is a lot to just give us all the major minor keys. We can instead do it by having those 6 buttons plus 2 buttons for changing a programmatic variable that remembers our key. Each button can change the key one direction or another around the circle of fifths. This has the disadvantage of not being able to jump to some arbitrary chord outside the key: VIIb and VIb come to mind as somewhat common examples.
+24 buttons is a lot to just give us all the major minor keys. We can instead do it by having those 6 buttons plus 2 buttons for changing a programmatic variable that remembers our key. Each button can change the key one direction or another around the circle of fifths. This has the disadvantage of not being able to jump to some arbitrary chord root outside the key: `VIIb` and `VIb` come to mind as somewhat common examples. And the chord vii&deg; is in the key and we can't reach it either. 
 
-We can expand the possibilities of these chords with modifiers, in decreasing order of importance and increasing order of my excitement: Adding a minor seventh, switching major/minor to minor/major respectively, diminishing the chord, sus4-ing the chord (!!), adding a major seventh to the chord (!!!), augmenting the chord (!!!!), maybe add6 add2 stuff, etc.
+The biggest problem is that the II and III chords aren't there. Adding another row can fix that, and also gives us all of the first 7 most important chords in major and minor from above:
+
+|     |     |     |
+| --- | --- | --- |
+| IV  | I   | V   |
+| ii  | vi  | iii |
+| II  | VI  | III |
+
+We can expand the possibilities of these chords with modifiers, in decreasing order of importance and increasing order of my excitement: Adding a minor seventh, switching major/minor to minor/major respectively, diminishing the chord, sus4-ing the chord (!!), adding a major seventh to the chord (!!!), augmenting the chord (!!!!). There could be add2, add6 stuff as well.
 
 #### Arduino setup (TODO)
