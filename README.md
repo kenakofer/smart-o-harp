@@ -1,37 +1,39 @@
-## Welcome to GitHub Pages
+## Smart-O-Harp
+#### A poorly named but versatile electronic autoharp design
 
-You can use the [editor on GitHub](https://github.com/kenanbit/smart-o-harp/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+This site details an ongoing project to improve the chord selection mechanism on chromatic Autoharps/Chromaharps (hereafter called just "autoharps"). An arduino reads inputs from a keypad, computes the desired chord from the keypresses, and mechanically dampens the undesired strings. 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+It does *not* strum or pluck for the human, nor does it change chords without human input.
 
-### Markdown
+See [Motivations](#motivation) for why this project is useful.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+See [Project Details](#project-details) for an outline of project considerations in more depth.
 
-```markdown
-Syntax highlighted code block
+### Motivation
+#### Autoharps are limited in number/variety of chords
 
-# Header 1
-## Header 2
-### Header 3
+Most autoharps have between 12 and 21 chord bars, with the ability to play in only some of the 12 musical keys. The chords available are usually major chords, minor chords, major-minor 7 chords, and sometimes a diminished chord.
 
-- Bulleted
-- List
+Thinking just about these 4 types of chords, the maximal manual autoharp can play 21 of them, out of the `12*4=48` possible.
 
-1. Numbered
-2. List
+Stepping out of the chord bar paradigm can allow more flexibility.
 
-**Bold** and _Italic_ and `Code` text
+#### Ergonomics of chord layouts can only go so far, and are not always key agnostic
 
-[Link](url) and ![Image](src)
-```
+The best layout I've found with 21 bars is to have each column be of the form (from farthest reach with the left hard to closest): `(Am, C, A7)`. Successive columns just walk this around the circle of fifths. This makes playing most major and minor songs in 5 key signatures ergonomic and *key agnostic* (transposing a song is as simple as shifting your chording hand over). Still, one of several flaws with this layout: When one wants the major/minor version of the minor/major chord, it's a wide reach that may go off the harp.
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+Stepping out of the 1 button = 1 chord paradigm can allow more flexibility.
 
-### Jekyll Themes
+#### Playing autoharps for long periods can cause cramping, arthritis, or other joint pain in the chording hand.
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/kenanbit/smart-o-harp/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+Depending on how well tuned the harp is and how the hand is positioned, this may be more or less of an issue. I don't play for more than an hour at a time, due to cramping.
 
-### Support or Contact
+Stepping out of the finger-force dampening paradigm...
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+### Project Details
+
+#### Dampening mechanism
+
+#### Keypad logic
+
+#### Arduino setup
