@@ -160,4 +160,20 @@ We can co-opt other buttons that will not be much use in diminished chords, such
 
 **You get the idea**: Other modifier ideas: removing the third to make open fifths, removing third and fifth to make octaves (yawn). "Scale" modifiers could be used for allowing playing any notes inside the scale by damping the ones outside the scale. Diatonic scale, pentatonic scale, various minor scales, or other less common scales.
 
+**Previous chord**: There are frequently times when you are walking a melody up a scale and have to go back and forth between passing chords. Having a `prev` button to go to the chord just before the one currently playing could save 1 or 2 key presses depending on how complicated the chords are.
+
+#### Keypress timing considerations
+
+Timing is very important and has not yet been discussed. Many keypads do not support detecting multiple keys pressed at the same time, so combinations of keys pressed to produce a chord cannot happen at once. We will call this a _sequential_ keypad system. A system that can detect any number of simultaneous keypresses correctly is a _simultaneous_ keypad system. We'll start with thinking sequentially for simplicity's sake.
+
+Most of the time when you press the `IV` button, you just want to play that chord as is. But suppose one time in the middle of a song it's a minor `iv` chord, requiring the major/minor modifier plus the `IV` button. Thinking sequentially, one button press has to come before the other. 
+
+If the `IV` is first, the arduino can either 1) wait for more input, or 2) immediately make the chord available with possibly the wrong tonality.
+
+If the `maj/min` is first, the arduino can either 3) wait for more input, or 4) immediately change the current chord to the opposite tonality.
+
+Of these 4 scenarios, I like 3 best. Immediate changes mean the instrument will be in states of the wrong tonality. If the arduino is to wait for something, it's best that the "something" be definite. We've talked about the 6 fundamental triad controls, and one reason they are so fundamental is that they are the common element, and thus can safely be the element that actuates the changing of the chords in one quick motion.
+
+Say we're in C major, and we want to play `E7`, which is `III7`. So the order of the sequential presses would be `maj/min`, `+m7`, `iii`. Only pressing the final button would cause the dampened strings to change.
+
 #### Arduino setup (TODO)
