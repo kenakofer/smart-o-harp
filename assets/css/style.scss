@@ -1,9 +1,42 @@
- ---
- ---
+---
+---
 
 @import "{{ site.theme }}";
 .wrapper {
-    max-width: 675px;
-    border: 16px solid #0000;
+    max-width: 675px; 
+    width: initial; 
+    border: 16px solid #00000000;
+}
+h1.title {
+    font-style: normal;
+}
+p.tagline {
+    padding: 6px 20px;
+    text-align: center;
+    font-style: italic;
+}
+.markdown-body table {
+    margin: 0 auto;
     width: initial;
+}
+.markdown-body thead {
+    display: none;
+}
+.markdown-body tbody {
+    border: 2px solid #557398;
+}
+.markdown-body td:first-child, .markdown-body th:first-child {
+    width: initial;
+}
+.markdown-body td {
+    padding: 15px;
+    text-align: center;
+}
+.markdown-body img {
+    display: block;
+    margin: 0 auto;
+}
+footer {
+    margin-bottom: 0;
+    padding-bottom: 30px;
 }
