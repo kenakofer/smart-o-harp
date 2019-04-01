@@ -1,0 +1,9 @@
+ ---
+ ---
+
+@import "{{ site.theme }}";
+.wrapper {
+    max-width: 675px;
+    border: 16px solid #0000;
+    width: initial;
+}
