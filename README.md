@@ -10,7 +10,7 @@ See [Dampening Mechanism](#dampening-mechanism) for an for detailed analysis of 
 
 See [Avoiding harmonic nodes](#avoiding-harmonic-nodes) on the importance of considering harmonics when experimenting.
 
-See [Keypad → Notes logic](#keypad__notes_logic) for more than you wanted to know about sensible chord setups.
+See [Keypad → Notes logic](#keypad--notes-logic) for more discussion than you wanted about sensible chord setups.
 
 --------
 
