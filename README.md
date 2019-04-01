@@ -87,11 +87,13 @@ Whenever we mess with positions of bars and felts on the autoharp, we need to ke
 
 ## Keypad &rarr; Notes logic
 
-This project has the opportunity for a very consistent, learnable, erganomic, key agnostic chord control mechanism. Optimizing for all these is a real puzzle. We'll start 
+This project has the opportunity for a very consistent, learnable, ergonomic, key agnostic chord control mechanism. Optimizing for all these is a real puzzle.
+
+#### Music Theory Considerations for chord root buttons
 
 In a major key, here are the roman numeral chords I want easy access to, in decreasing order of importance: `(I, V(7), IV, vi, ii, II(7), iii, III(7), vii&deg;, VI, VIIb, ...)`  I have high uncertainty after halfway through that list.
 
-Similarly, in a minor key (using the roman numeral `vi` as the tonic chord for consistency): `(vi, iii, III(7), ii, V(7), I, IV, ...)` I have high enough uncertainty that I won't even try to add more.
+Similarly, in a minor key (using the roman numeral `vi` as the tonic chord for consistency): `(vi, iii, III(7), ii, V(7), I, IV, ...)` I have high enough uncertainty that I won't try to add more.
 
 Songs with the richest harmonies have both minor and major progressions in them, so it behooves us to not only make the system key agnostic, but also *tonality agnostic* (a term I just made up: a song that starts major and then goes minor or vice versa shouldn't throw us for a loop).
 
@@ -106,11 +108,17 @@ Or, arranging them in rows as autoharpists typically do:
 
 This seems like an optimal arrangement of 6 buttons for playing diatonically, to be key and tonality agnostic. I'll treat these 6 chords as the core chords, which should be accessible through a single button press.
 
-To actually make it key agnostic though, there needs to be a way to play in more than one key. We could do this with static buttons by having 24 buttons that we could arrange in 2 literal circles of fifths. The circles could be one inside the other, and then we literally have a circle of fifths as a control board:
+To actually make it key agnostic though, there needs to be a way to play in more than one key. 
+
+**Fixed chord root buttons**: We could do this with static buttons by having 24 buttons that we could arrange in 2 literal circles of fifths. The circles could be one inside the other, and then we literally have a circle of fifths as a control board:
 
 ![major minor circle of fifths](https://www.dummies.com/wp-content/uploads/104975.image0.jpg)
 
-24 buttons is a lot to just give us all the major minor keys. We can instead do it by having those 6 buttons plus 2 buttons for changing a programmatic variable that remembers our key. Each button can change the key one direction or another around the circle of fifths. This has the disadvantage of not being able to jump to some arbitrary chord root outside the key: `VIIb` and `VIb` come to mind as somewhat common examples. And the chord vii&deg; is in the key and we can't reach it either. 
+24 buttons feels like a lot, but it gives us every major/minor triad, and it could make for a really attractive circular keypad, which could rotate to "switch" keys, and have modifier keys inside or outside the main circle. You would have to construct this yourself, as I can't find such a circular keypad online, even just for one row.
+
+If your thumb is used to joysticks, another idea is to map the sectors of a joystick's movement to the circle of fifths. The lack of tactile feedback on the boundaries between chords, or the small 30&deg; sectors might be issues.
+
+**Dynamic chord root buttons**: We can try to use program state to do it with fewer buttons: 6 buttons could code for `(IV, I, V, ii, vi, iii)` as in the table above, and 2 buttons could be used to change our key. Each button can change the key one direction or another around the circle of fifths. This has the disadvantage of not being able to jump to some arbitrary chord root outside the key: `VIIb` and `VIb` come to mind as somewhat common examples. And the chord vii&deg; is entirely in the key and we can't reach it either. 
 
 The biggest problem is that the II and III chords aren't there. Adding another row can fix that, and also gives us all of the first 7 most important chords in major and minor from above:
 
@@ -120,6 +128,20 @@ The biggest problem is that the II and III chords aren't there. Adding another r
 | ii  | vi  | iii |
 | II  | VI  | III |
 
-We can expand the possibilities of these chords with modifiers, in decreasing order of importance and increasing order of my excitement: Adding a minor seventh, switching major/minor to minor/major respectively, diminishing the chord, sus4-ing the chord (!!), adding a major seventh to the chord (!!!), augmenting the chord (!!!!). There could be add2, add6 stuff as well.
+This third row looks a little redundant next to the second row; especially if the "Swapping major/minor triad" modifier below is convenient to use.
+
+#### Music Theory considerations for Chord modifiers
+
+We can expand the possibilities of these chords with modifiers. A modifier is a way to add or modify the notes in the 24 basic triads. Ideally, several modifiers could be added to one triad without much hassle. Each player will probably have a different preference for how these are arranged and which are included, or may even desire to change layouts between songs.
+
+Here's my list of modifiers in decreasing order of importance and increasing order of my excitement: Adding a minor seventh, switching major/minor to minor/major triad respectively, diminishing the chord, sus4-ing the chord (!!), adding a major seventh to the chord (!!!), augmenting the chord (!!!!). There could be add2, add6, 9, 11, 13 stuff as well.
+
+**Adding sevenths**: The major point of contention with having a `+7` modifier button is whether that 7 should be major or minor or context dependent. Chords with a major 7th above the root are rare, and seldom used outside of jazz. [Mechanical autoharps aren't great for jazz](http://jazzmando.com/new/archives/001511.shtml) (Only view if you aren't easily offended), and the possibility for major sevenths would help.
+
+It isn't usually possible to predict the presence of major sevenths from the key signature, and chord sheets are explicit about when the 7 is major: `FM7` or `Fmaj7`. For this reason, it seems most best to use two separate modifiers: A `+min7` button that is in very easy reach for frequent use, and a `+maj7` button if the player wants it.
+
+**Swapping major/minor triads**: A `ii` becomes a `II`. A `iii` becomes a `III`. A common progression at the end of songs: `(I - IV - iv - I)`. The `IV` and `V` in a major key get swapped out with their parallel minor counterparts for a more edgy harmony. The [Picardy third](https://en.wikipedia.org/wiki/Picardy_third) makes the last chord of a minor song (un)expectedly major.
+
+Though a minor button and a major button separately are simpler to understand, the minor button would only be useful on major chords, and the major button only on minor chords. Combining them into a single button saves a button for something else.
 
 #### Arduino setup (TODO)
