@@ -43,7 +43,7 @@ Stepping out of the finger-force dampening paradigm etc.
 
 #### One solenoid per string
 
-This is my current favorite. Every string has a small solenoid positioned so that the unpowered state is dampening the string. When powered, the dampener lifts up, allowing that string to sound. The arduino controls the 30-40 solenoids individually, allowing more flexibility than the other two solutions. Cheap solenoids will cost around $1.
+This is my current pursuit. Every string has a small solenoid positioned so that the unpowered state is dampening the string. When powered, the dampener lifts up, allowing that string to sound. The arduino controls the 30-40 solenoids individually, allowing more flexibility than the other two solutions. Cheap solenoids will cost around $1. The batteries I've tried cannot deliver the amps needed, so I'm trying a 12V, 5A laptop charger for now.
 
 **Construction summary**: From a autoharp with exposed chord bars. Remove all bars except for one. Stretch the springs holding that bar so that the bar stays high under more force. Super glue solenoids to the sides of the bar such that the solenoids head is just short of touching the string it should dampen. Padding can then be glued to the head of the solenoid so that the resting state dampens the string effectively. Alternate placing solenoids on each side of the bar to give them enough lateral space.
 
@@ -51,7 +51,7 @@ This is my current favorite. Every string has a small solenoid positioned so tha
 
 **Pros**: String by string flexibility for chord building, simple construction
 
-**Cons**: Raised solenoids (undampened strings) draw current while remaining raised. (TODO power/battery requirements.)
+**Cons**: Raised solenoids (undampened strings) draw current while remaining raised (one of my tiny $1 solenoids needs at least 70 mA to start lifting, and will continue to draw that while raised).
 
 #### Depress single-note bars with motor push
 
@@ -61,7 +61,7 @@ This is the second simplest solution. There are 12 "chord" bars, but their felts
 
 **Considerations**: Force of dampening. Avoiding harmonic nodes.
 
-**Pros**: Minimal power usage when not changing chords. Probably cheaper than the solenoids if done right, but not by much.
+**Pros**: Minimal power usage when not changing chords. Probably cheaper than the solenoids if done right, but not by much. Probably can be powered by a battery.
 
 **Cons**: Complicated mounting that occupies space in front of chord bars, which may get in the way of the strumming hand.
 
@@ -71,7 +71,7 @@ Like the last in terms of the single note bars. For each bar: Tie a string to ea
 
 **Considerations**: Allowing the motors to do no work when not changing chords. Motors need to be about as high torque as previous.
 
-**Pros**: The complicated mounting of the previous can be relocated somewhere less invasive (inside the autoharp body would be really interesting.
+**Pros**: The complicated mounting of the previous can be relocated somewhere less invasive (inside the autoharp body would be really interesting. Probably can be powered by a battery.
 
 **Cons**: Starting to get quite complicated.
 
@@ -89,9 +89,11 @@ Whenever we mess with positions of bars and felts on the autoharp, we need to ke
 
 ## Keypad &rarr; Notes logic
 
-This project has the opportunity for a very consistent, learnable, ergonomic, key agnostic chord control mechanism. Optimizing for all these is a real puzzle.
+This project has the opportunity for a very consistent, learnable, ergonomic, key agnostic chord control mechanism. Optimizing for all these is a real puzzle, and different musicians will have different opinions and desires in this area.
 
-#### Music Theory Considerations for chord root buttons
+In this section, there will be tension between 1) incorporating more buttons/controls/physical complexity into the design, so that the amount of interaction needed to change to arbitrary chords is minimized, and 2) having fewer buttons/controls, so that the size/cost/physical complexity is minimized, but more interaction is needed to specify arbitrary chords. Each person probably has their own balance, but I lean more toward the fewer buttons/controls because I'm bad at electronics and want 
+
+#### Music Theory Considerations for important triads
 
 In a major key, here are the roman numeral chords I want easy access to, in decreasing order of importance: `(I, V(7), IV, vi, ii, II(7), iii, III(7), vii&deg;, VI, VIIb, ...)`  I have high uncertainty after halfway through that list.
 
@@ -132,7 +134,7 @@ The biggest problem is that the II and III chords aren't there. Adding another r
 
 This third row looks a little redundant next to the second row; especially if the "Swapping major/minor triad" modifier below is convenient to use.
 
-#### Music Theory considerations for Chord modifiers
+#### Music Theory considerations for chord modifiers
 
 We can expand the possibilities of these chords with modifiers. A modifier is a way to add or modify the notes in the 24 basic triads. Ideally, several modifiers could be added to one triad without much hassle. Each player will probably have a different preference for how these are arranged and which are included, or may even desire to change layouts between songs.
 
@@ -145,5 +147,17 @@ It isn't usually possible to predict the presence of major sevenths from the key
 **Swapping major/minor triads**: A `ii` becomes a `II`. A `iii` becomes a `III`. A common progression at the end of songs: `(I - IV - iv - I)`. The `IV` and `V` in a major key get swapped out with their parallel minor counterparts for a more edgy harmony. The [Picardy third](https://en.wikipedia.org/wiki/Picardy_third) makes the last chord of a minor song (un)expectedly major.
 
 Though a minor button and a major button separately are simpler to understand, the minor button would only be useful on major chords, and the major button only on minor chords. Combining them into a single button saves a button for something else.
+
+**Diminished chords**: Three chords of interest: a [diminished triad](https://en.wikipedia.org/wiki/Diminished_triad) (3 notes with minor thirds between them), [fully diminished seventh chord] (https://en.wikipedia.org/wiki/Diminished_seventh_chord) (4 notes with minor thirds between them), and [half-diminished seventh chord](https://en.wikipedia.org/wiki/Half-diminished_seventh_chord) (a diminished triad with a minor seventh on top). The logic I've used thus far does not fit diminished chords well: We don't have `vii&deg;` the most common diminished triad in our base triads; if we did, we still don't have a modifier to add a minor sixth to the chord for the fully diminished seventh. The most comprehensible solution is simply to add a modifier for each variation.
+
+There are a few inelegant hacks we can use if we don't want to add so many buttons for these relatively rare chords. We could add one modifier button, a `dim` button, but have the button work in coordination with our `V` triad to produce the `vii&deg;`. Why `V`? The diminished triad has a (dominant function)[https://en.wikipedia.org/wiki/Dominant_(music)] just like the `V`, and a `V7` can be thought of as a `vii&deg;` with an added fifth scale degree.
+
+We can co-opt other buttons that will not be much use in diminished chords, such as the `+maj7`, to be a `+min6` for the fully diminished chord. We can use the `+min7` as is to produce a half-diminished chord. Each of these chords would require 3 button presses: the `V`, the `dim`, and whichever `+7` button.
+
+**Augmented chords**: These are a piece of proverbial cake relative to the diminished chords. An [augmented triad](https://en.wikipedia.org/wiki/Augmented_triad) is 3 notes separated by major thirds. Ignoring enharmonics (as we do) there are only 3 different augmented chords. So throw on an `aug` button, hit it with `I` or `iii` and you'll get the same effect. The `+7` modifiers are still there if you want to play a really exotic chord.
+
+**Sus4 chords**: In a [sus4 chord](https://en.wikipedia.org/wiki/Suspended_chord) the 3rd is removed and a perfect 4th added. Pretty straightforward unless you want to hack together a more general system to get `sus2` without extra buttons, but I'm cool with just a `sus4` for now.
+
+**You get the idea**: Other modifier ideas: removing the third to make open fifths, removing third and fifth to make octaves (yawn). "Scale" modifiers could be used for allowing playing any notes inside the scale by damping the ones outside the scale. Diatonic scale, pentatonic scale, various minor scales, or other less common scales.
 
 #### Arduino setup (TODO)
