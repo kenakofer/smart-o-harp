@@ -144,6 +144,8 @@ Here's my list of modifiers in decreasing order of importance and increasing ord
 
 It isn't usually possible to predict the presence of major sevenths from the key signature, and chord sheets are explicit about when the 7 is major: `FM7` or `Fmaj7`. For this reason, it seems most best to use two separate modifiers: A `+min7` button that is in very easy reach for frequent use, and a `+maj7` button if the player wants it.
 
+Alternatively, consider that a single button could be double tapped to get a different behavior, e.g. `+7` once for `+min7` and twice for `+maj7`.
+
 **Swapping major/minor triads**: A `ii` becomes a `II`. A `iii` becomes a `III`. A common progression at the end of songs: `(I - IV - iv - I)`. The `IV` and `V` in a major key get swapped out with their parallel minor counterparts for a more edgy harmony. The [Picardy third](https://en.wikipedia.org/wiki/Picardy_third) makes the last chord of a minor song (un)expectedly major.
 
 Though a minor button and a major button separately are simpler to understand, the minor button would only be useful on major chords, and the major button only on minor chords. Combining them into a single button saves a button for something else.
@@ -160,6 +162,10 @@ We can co-opt other buttons that will not be much use in diminished chords, such
 
 **You get the idea**: Other modifier ideas: removing the third to make open fifths, removing third and fifth to make octaves (yawn). "Scale" modifiers could be used for allowing playing any notes inside the scale by damping the ones outside the scale. Diatonic scale, pentatonic scale, various minor scales, or other less common scales.
 
+#### Misc. operator buttons
+
+**Left/Right around the circle of fifths**: 2 buttons, `mod5` and `mod4` to allow the instrument to change keys in two directions: `V` becomes `I`; and `IV` becomes `I`. Modulating by minor thirds might also be useful to go quickly between parallel major/minor keys.
+
 **Previous chord**: There are frequently times when you are walking a melody up a scale and have to go back and forth between passing chords. Having a `prev` button to go to the chord just before the one currently playing could save 1 or 2 key presses depending on how complicated the chords are.
 
 #### Keypress timing considerations
@@ -174,6 +180,36 @@ If the `maj/min` is first, the arduino can either 3) wait for more input, or 4) 
 
 Of these 4 scenarios, I like 3 best. Immediate changes mean the instrument will be in states of the wrong tonality. If the arduino is to wait for something, it's best that the "something" be definite. We've talked about the 6 fundamental triad controls, and one reason they are so fundamental is that they are the common element, and thus can safely be the element that actuates the changing of the chords in one quick motion.
 
-Say we're in C major, and we want to play `E7`, which is `III7`. So the order of the sequential presses would be `maj/min`, `+m7`, `iii`. Only pressing the final button would cause the dampened strings to change.
+Say we're in C major, and we want to play `E7`, which is `III7`. So the order of the sequential presses would be `maj/min`, `+m7`, `iii`. Only pressing the final button would cause the dampened strings to change. Not gonna lie: this sounds painful given how often I use III7.
 
-#### Arduino setup (TODO)
+#### Sequential layout ideas
+
+Given the above, here are some of my ideas for "good" sequential keypad layouts
+
+**12 button sequential keypad A (fast and simple):**
+
+|     |     |     |
+| --- | --- | --- |
+| IV  | I   | V   |
+| ii  | vi  | iii |
+| II7 | VI7 | III7|
+| mod4|+min7| mod5|
+
+This layout should play melodies quickly and efficiently. The presence of the third triad row (with 7s already added because of their nealy universal use on secondary dominants) allows us to leave out `maj/min` modifier. We can play most chords with a single keypress, with the exception of the V7 (this is a real downer). Even with just these 12 buttons, the player can play in all 12 key signatures, major and minor, with the most common chords, have minor chords with minor sevenths, major sevenths if you use a double-tap logic, and modulate keys mid song without fuss. 
+
+Some players might like swapping out the `+min7` for a `V7` button, or have the double tap behavior provide the `V7`, or some variation on that.
+
+**12 button sequential keypad B (slower and deeper):**
+
+|     |     |     |
+| --- | --- | --- |
+| IV  | I   | V   |
+| ii  | vi  | iii |
+|+min7|maj/min|sus4|
+| mod4|prev | mod5|
+
+We remove our convenience row of chords to add more cool modifiers to show off with. Double taps would open open up more possibilities `+min7`  &rarr; `+maj7`; `maj/min` &rarr; `dim` sus4  &rarr; `sus2`. But now the secondary dominants with sevenths require 3 presses. This could be fine for chording and slower melodies, but not faster ones. The `prev` button recovers some speed between alternating chords.
+
+--------
+
+## Arduino setup (TODO)
