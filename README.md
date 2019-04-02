@@ -208,7 +208,7 @@ Some players might like swapping out the `+min7` for a `V7` button, or have the 
 |+min7|maj/min|sus4|
 | mod4|prev | mod5|
 
-We remove our convenience row of chords to add more cool modifiers to show off with. Double taps would open open up more possibilities `+min7`  &rarr; `+maj7`; `maj/min` &rarr; `dim` sus4  &rarr; `sus2`. But now the secondary dominants with sevenths require 3 presses. This could be fine for chording and slower melodies, but not faster ones. The `prev` button recovers some speed between alternating chords.
+We remove our convenience row of chords to add more cool modifiers to show off with. Double taps would open open up more possibilities `+min7`  &rarr; `+maj7`; `maj/min` &rarr; `dim`; `sus4`  &rarr; `sus2`. But here the secondary dominants with sevenths require 3 presses. This could be fine for chording and slower melodies, but not faster ones. The `prev` button recovers some speed between alternating chords.
 
 --------
 
