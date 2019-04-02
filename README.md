@@ -91,7 +91,7 @@ Whenever we mess with positions of bars and felts on the autoharp, we need to ke
 
 This project has the opportunity for a very consistent, learnable, ergonomic, key agnostic chord control mechanism. Optimizing for all these is a real puzzle, and different musicians will have different opinions and desires in this area.
 
-In this section, there will be tension between 1) incorporating more buttons/controls/physical complexity into the design, so that the amount of interaction needed to change to arbitrary chords is minimized, and 2) having fewer buttons/controls, so that the size/cost/physical complexity is minimized, but more interaction is needed to specify arbitrary chords. Each person probably has their own balance, but I lean more toward the fewer buttons/controls because I'm bad at electronics and want 
+In this section, there will be tension between 1) incorporating more buttons/controls/physical complexity into the design, so that the amount of interaction needed to change to arbitrary chords is minimized, and 2) having fewer buttons/controls, so that the size/cost/physical complexity is minimized, but more interaction is needed to specify arbitrary chords. Each person probably has their own balance, but I lean more toward the fewer buttons/controls because I'm bad at electronics.
 
 #### Music Theory Considerations for important triads
 
@@ -164,6 +164,7 @@ We can co-opt other buttons that will not be much use in diminished chords, such
 
 #### Misc. operator buttons
 
+
 **Left/Right around the circle of fifths**: 2 buttons, `mod5` and `mod4` to allow the instrument to change keys in two directions: `V` becomes `I`; and `IV` becomes `I`. Modulating by minor thirds might also be useful to go quickly between parallel major/minor keys.
 
 **Previous chord**: There are frequently times when you are walking a melody up a scale and have to go back and forth between passing chords. Having a `prev` button to go to the chord just before the one currently playing could save 1 or 2 key presses depending on how complicated the chords are.
@@ -180,7 +181,7 @@ If the `maj/min` is first, the arduino can either 3) wait for more input, or 4) 
 
 Of these 4 scenarios, I like 3 best. Immediate changes mean the instrument will be in states of the wrong tonality. If the arduino is to wait for something, it's best that the "something" be definite. We've talked about the 6 fundamental triad controls, and one reason they are so fundamental is that they are the common element, and thus can safely be the element that actuates the changing of the chords in one quick motion.
 
-Say we're in C major, and we want to play `E7`, which is `III7`. So the order of the sequential presses would be `maj/min`, `+m7`, `iii`. Only pressing the final button would cause the dampened strings to change. Not gonna lie: this sounds painful given how often I use III7.
+Say we're in C major, and we want to play `E7`, which is `III7`. So the order of the sequential presses would be `maj/min`, `+m7`, `iii`. Only pressing the final button would cause the dampened strings to change. Not gonna lie: this sounds painful given how often I use `III7`.
 
 #### Sequential layout ideas
 
@@ -195,7 +196,7 @@ Given the above, here are some of my ideas for "good" sequential keypad layouts
 | II7 | VI7 | III7|
 | mod4|+min7| mod5|
 
-This layout should play melodies quickly and efficiently. The presence of the third triad row (with 7s already added because of their nealy universal use on secondary dominants) allows us to leave out `maj/min` modifier. We can play most chords with a single keypress, with the exception of the V7 (this is a real downer). Even with just these 12 buttons, the player can play in all 12 key signatures, major and minor, with the most common chords, have minor chords with minor sevenths, major sevenths if you use a double-tap logic, and modulate keys mid song without fuss. 
+This layout should play melodies quickly and efficiently. The presence of the third triad row (with 7s already added because of their nearly universal use on secondary dominants) allows us to leave out `maj/min` modifier. We can play most chords with a single keypress, with the exception of the `V7` (this is a real downer). Even with just these 12 buttons, the player can play in all 12 key signatures, major and minor, with the most common chords, have minor chords with minor sevenths, major sevenths if you use a double-tap logic, and modulate keys mid song without fuss. 
 
 Some players might like swapping out the `+min7` for a `V7` button, or have the double tap behavior provide the `V7`, or some variation on that.
 
