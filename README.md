@@ -95,7 +95,7 @@ In this section, there will be tension between 1) incorporating more buttons/con
 
 #### Music Theory Considerations for important triads
 
-In a major key, here are the roman numeral chords I want easy access to, in decreasing order of importance: `(I, V(7), IV, vi, ii, II(7), iii, III(7), vii&deg;, VI, VIIb, ...)`  I have high uncertainty after halfway through that list.
+In a major key, here are the roman numeral chords I want easy access to, in decreasing order of importance: `(I, V(7), IV, vi, ii, II(7), iii, III(7), vii°, VI, VIIb, ...)`  I have high uncertainty after halfway through that list.
 
 Similarly, in a minor key (using the roman numeral `vi` as the tonic chord for consistency): `(vi, iii, III(7), ii, V(7), I, IV, ...)` I have high enough uncertainty that I won't try to add more.
 
@@ -122,7 +122,7 @@ To actually make it key agnostic though, there needs to be a way to play in more
 
 If your thumb is used to joysticks, another idea is to map the sectors of a joystick's movement to the circle of fifths. The lack of tactile feedback on the boundaries between chords, or the small 30&deg; sectors might be issues.
 
-**Dynamic chord root buttons**: We can try to use program state to do it with fewer buttons: 6 buttons could code for `(IV, I, V, ii, vi, iii)` as in the table above, and 2 buttons could be used to change our key. Each button can change the key one direction or another around the circle of fifths. This has the disadvantage of not being able to jump to some arbitrary chord root outside the key: `VIIb` and `VIb` come to mind as somewhat common examples. And the chord vii&deg; is entirely in the key and we can't reach it either. 
+**Dynamic chord root buttons**: We can try to use program state to do it with fewer buttons: 6 buttons could code for `(IV, I, V, ii, vi, iii)` as in the table above, and 2 buttons could be used to change our key. Each button can change the key one direction or another around the circle of fifths. This has the disadvantage of not being able to jump to some arbitrary chord root outside the key: `VIIb` and `VIb` come to mind as somewhat common examples. And the chord `vii°` is entirely in the key and we can't reach it either. 
 
 The biggest problem is that the II and III chords aren't there. Adding another row can fix that, and also gives us all of the first 7 most important chords in major and minor from above:
 
@@ -148,9 +148,9 @@ It isn't usually possible to predict the presence of major sevenths from the key
 
 Though a minor button and a major button separately are simpler to understand, the minor button would only be useful on major chords, and the major button only on minor chords. Combining them into a single button saves a button for something else.
 
-**Diminished chords**: Three chords of interest: a [diminished triad](https://en.wikipedia.org/wiki/Diminished_triad) (3 notes with minor thirds between them), [fully diminished seventh chord] (https://en.wikipedia.org/wiki/Diminished_seventh_chord) (4 notes with minor thirds between them), and [half-diminished seventh chord](https://en.wikipedia.org/wiki/Half-diminished_seventh_chord) (a diminished triad with a minor seventh on top). The logic I've used thus far does not fit diminished chords well: We don't have `vii&deg;` the most common diminished triad in our base triads; if we did, we still don't have a modifier to add a minor sixth to the chord for the fully diminished seventh. The most comprehensible solution is simply to add a modifier for each variation.
+**Diminished chords**: Three chords of interest: a [diminished triad](https://en.wikipedia.org/wiki/Diminished_triad) (3 notes with minor thirds between them), [fully diminished seventh chord] (https://en.wikipedia.org/wiki/Diminished_seventh_chord) (4 notes with minor thirds between them), and [half-diminished seventh chord](https://en.wikipedia.org/wiki/Half-diminished_seventh_chord) (a diminished triad with a minor seventh on top). The logic I've used thus far does not fit diminished chords well: We don't have `vii°` the most common diminished triad in our base triads; if we did, we still don't have a modifier to add a minor sixth to the chord for the fully diminished seventh. The most comprehensible solution is simply to add a modifier for each variation.
 
-There are a few inelegant hacks we can use if we don't want to add so many buttons for these relatively rare chords. We could add one modifier button, a `dim` button, but have the button work in coordination with our `V` triad to produce the `vii&deg;`. Why `V`? The diminished triad has a (dominant function)[https://en.wikipedia.org/wiki/Dominant_(music)] just like the `V`, and a `V7` can be thought of as a `vii&deg;` with an added fifth scale degree.
+There are a few inelegant hacks we can use if we don't want to add so many buttons for these relatively rare chords. We could add one modifier button, a `dim` button, but have the button work in coordination with our `V` triad to produce the `vii°`. Why `V`? The diminished triad has a (dominant function)[https://en.wikipedia.org/wiki/Dominant_(music)] just like the `V`, and a `V7` can be thought of as a `vii°` with an added fifth scale degree.
 
 We can co-opt other buttons that will not be much use in diminished chords, such as the `+maj7`, to be a `+min6` for the fully diminished chord. We can use the `+min7` as is to produce a half-diminished chord. Each of these chords would require 3 button presses: the `V`, the `dim`, and whichever `+7` button.
 
