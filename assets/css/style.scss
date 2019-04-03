@@ -27,10 +27,13 @@ p.tagline {
 }
 .markdown-body td:first-child, .markdown-body th:first-child {
     width: initial;
+    padding: 0;
 }
 .markdown-body td {
-    padding: 15px;
+    padding: 0;
     text-align: center;
+    height: 80px;
+    min-width: 80px;
 }
 .markdown-body img {
     display: block;
