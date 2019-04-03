@@ -171,9 +171,11 @@ We can co-opt other buttons that will not be much use in diminished chords, such
 
 #### Keypress timing considerations
 
-Timing is very important and has not yet been discussed. Many keypads do not support detecting multiple keys pressed at the same time, so combinations of keys pressed to produce a chord cannot happen at once. We will call this a _sequential_ keypad system. A system that can detect any number of simultaneous keypresses correctly is a _simultaneous_ keypad system. We'll start with thinking sequentially for simplicity's sake.
+Timing is very important and has not yet been discussed. Some keypads do not support detecting multiple keys pressed at the same time, so combinations of keys pressed to produce a chord cannot happen at once. We will call this a _sequential_ keypad system. Many more keypads have, at least in their hardware, the ability to correctly detect certain simultaneous keypresses, but not others. We'll call a system that can detect some number of simultaneous keypresses correctly a _simultaneous_ keypad system. We'll start with thinking sequentially for simplicity's sake.
 
-Most of the time when you press the `IV` button, you just want to play that chord as is. But suppose one time in the middle of a song it's a minor `iv` chord, requiring the major/minor modifier plus the `IV` button. Thinking sequentially, one button press has to come before the other. 
+#### Sequential principles
+
+Most of the time when you press the `IV` button, you just want to play that chord as is. But suppose one time in the middle of a song it's a minor `iv` chord, requiring the major/minor modifier plus the `IV` button. Thinking sequentially, one button press has to come before the other.
 
 If the `IV` is first, the arduino can either 1) wait for more input, or 2) immediately make the chord available with possibly the wrong tonality.
 
@@ -185,7 +187,7 @@ Say we're in C major, and we want to play `E7`, which is `III7`. So the order of
 
 #### Sequential layout ideas
 
-Given the above, here are some of my ideas for "good" sequential keypad layouts
+Given the above, here are some of my ideas for "good" sequential keypad layouts. Any of these could have part or all of it rotated 90&deg; to better fit under the fingers.
 
 **12 button sequential keypad A (fast and simple):**
 
@@ -211,6 +213,53 @@ Some players might like swapping out the `+min7` for a `V7` button, or have the 
 
 We remove our convenience row of chords to add more cool modifiers to show off with. Double taps would open open up more possibilities `+min7`  &rarr; `+maj7`; `maj/min` &rarr; `dim`; `sus4`  &rarr; `sus2`. But here the secondary dominants with sevenths require 3 presses. This could be fine for chording and slower melodies, but not faster ones. The `prev` button recovers some speed between alternating chords.
 
+#### Simultaneous principles in row, column keypads
+
+The possibility of pressing multiple keys at the same time allows for faster fingering of chords with modifiers, but introduces complexities of hardware and timing.
+
+**No ground pin**: It's common for keypads to be wired such that each row and column corresponds to a pin, such that pressing the button in the first row and first column connects the first row pin (`row1`) to the first column pin (`col1`). Suppose that the button in the first row, second column is also pressed. then `row1`, `col1`, and `col2` are all connected to each other.
+
+![Keypad backside wiring](http://www.circuitbasics.com/wp-content/uploads/2017/05/How-to-Set-Up-a-Keypad-on-an-Arduino-Back-Side-of-Keypad.jpg)
+
+But the arduino's logic is in reverse: (Ex. 1) If it sees that `row2`, `col3`, and `col4` are connected to each other, can it know for certain what buttons are pressed? In this case, yes, because a button press is always at the intersection of a row and column, and a row or column pin can't be in the connected list without having a pressed button. We can extend this logic to say that any number of keypresses in any single row or in any single column are always safely distinguishable.
+
+(Ex. 2) If `row1` and `col1` are connected, and `row2` and `col2` are separately connected, the arduino still knows the exact two buttons that are pressed. This, along with the first example, shows that any two simultaneous keypresses are distinguishable.
+
+Certain combinations of 3 simultaneous keypresses introduce ambiguity. (Ex. 3) If ever there is a pressed button (e.g. `row1, col1`) who has another pressed button buddy in their row (`row1, col2`), and also a pressed button buddy in their column (`row2, col1`), then all the arduino sees is a group of 4 connected pins: `row1`, `row2`, `col1`, `col2`. Some combination of 3 or 4 of these were pressed, but there's no way to know which. 
+
+However, ambiguity is not necessarily a deal-breaker: as long as the arduino has a sensible default for how to interpret specific situations of ambiguity, it can use that default. We just want to avoid designing a system that allows two useful "button signatures" to have the same "pin signature" from the arduino's perspective.
+
+**With ground pin**: My keypad is weird in that it has a pin that connects to every button, which I'll call the `ground`. So pressing the top left button connects `row1`, `col1`, and `ground`. So Ex. 2 isn't a possibility, because all button presses connect the entire set of row and column pins involved. So the only unambiguous button presses are, as descibed in Ex. 1, within a single column or within a single row. The same note about ambiguity applies.
+
+I'm honestly not sure where I got this keypad, or why I would want this `ground` pin when it seems to only decrease the functionality.
+
+**Regardless**, it is safe for us to make plans for simultaneous keypresses in a single row or column. This limitation still allows quite a few possibilities, but makes simultaneous modifier keys, like a `+min7` difficult to put somewhere that is usable by all the relevant chords. As a result, I'll try to avoid having modifier keys at all.
+
+**12 button simultaneous keypad (Bear With Me edition):**
+
+This will get kind of complicated to diagram now. It's better to have lots of choices IMHO, but I realize many will disagree with me. Note that "2 buttons to the left" will sometimes mean wrapping back around to the right side.
+
+**Interpretation:** Default chord (chord when button to the left is also pressed) (chord when the 2 buttons to the left are both pressed)
+
+|     |     |     |     |
+| --- | --- | --- | --- |
+|  `VIIb` (`vii°`) (`vii°7`) | `IV` (`IV7`) (`IVmaj7`) | `I` (`I7`) (`Imaj7`)  | `V` (`V7`) (`Vmaj7`)   |
+| `v` (`iv`) (`i`)  | `ii` (`II7`) (`ii7`) | `vi` (`VI7`) (`vi7`) | `iii` (`III7`) (`iii7`) |
+| `mod4` | `prev` | `+sus4` | `mod5` |
+
+First off, I sincerely apologize for the first column, you may ignore it as you are picking up the pattern of the rest of the table. Pressing a bunch of buttons in a row are interpreted as a modifier on the rightmost of the buttons pressed (wrapping from left to right is important). This mostly serves to add various sevenths to chords, and differs between the major and minor triads.
+
+**Major**: When 1 button to the left is pressed, it does `+min7`. When 2 buttons are pressed, it `+maj7`s the chord.
+
+**Minor**: When 1 button to the left is pressed, it majors it and does `+min7`. When 2 buttons are pressed, it just `+min7`s the chord. I didn't use `+maj7` because that isn't as much used on minor chords.
+
+And the first column just throws in all the things I would be sad not to have, in a vaguely circle-of-fifths-y way. This layout throws easy comprehension out the window in favor of packing in the options in an ergonomic manner (Imagine alternating between fingerings for `I` and `V7`, just by lifting a single finger, or doing the same between `III7` and `vi`).
+
+Note that on a grounded pin keypad, the `+sus4` introduces ambiguity when pressed simultaneously with, say, `V`. It connects pins `row3`, `col3`, `row1`, and `col4`. However, if we are content with only using `+sus4` with a single other button press, and not using the other buttons in the 3rd row with the triad buttons, we can have the arduino interpret this ambiguity predictably as using the `+sus4` with whichever button is diagonal to it. No-ground-pin keypads don't need to worry about this.
+
+I'm not sure how useful the `prev` button will be in this layout, because most back-and-forth passing chords are pretty easy to go between already. I add it here mostly because I don't know what else to put in that space. I can't have another typical modifier due to the paragraph above. I could have a parallel minor modifier that is only used with the `mod4` and `mod5` buttons to change key up or down by a minor 3rd easily. Or I could put another chord there, like the `VIb`.
+
 --------
 
 ## Arduino setup (TODO)
+
