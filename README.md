@@ -243,11 +243,13 @@ This will get kind of complicated to diagram now. It's better to have lots of ch
 
 |     |     |     |     |
 | --- | --- | --- | --- |
-|  `VIIb` (`vii°`) (`vii°7`) | `IV` (`IV7`) (`IVmaj7`) | `I` (`I7`) (`Imaj7`)  | `V` (`V7`) (`Vmaj7`)   |
-| `v` (`iv`) (`i`)  | `ii` (`II7`) (`ii7`) | `vi` (`VI7`) (`vi7`) | `iii` (`III7`) (`iii7`) |
-| `mod4` | `prev` | `+sus4` | `mod5` |
+|  VIIb (vii°) (vii°7) | IV (IV7) (IVmaj7) | I (I7) (Imaj7)  | V (V7) (Vmaj7)   |
+| v (iv) (i)  | ii (II7) (ii7) | vi (VI7) (vi7) | iii (III7) (iii7) |
+| mod4 | prev | +sus4 | mod5 |
 
-First off, I sincerely apologize for the first column, you may ignore it as you are picking up the pattern of the rest of the table. Pressing a bunch of buttons in a row are interpreted as a modifier on the rightmost of the buttons pressed (wrapping from left to right is important). This mostly serves to add various sevenths to chords, and differs between the major and minor triads.
+First off, I sincerely apologize for the first column, you may ignore it as you are picking up the pattern of the rest of the table. 
+
+Pressing a bunch of buttons in a row are interpreted as a modifier on the rightmost of the buttons pressed (wrapping from left to right is important, e.g. to get the `vii°` one would press `VIIb` and `V`). This mostly serves to add various sevenths to chords, and differs between the major and minor triads.
 
 **Major**: When 1 button to the left is pressed, it does `+min7`. When 2 buttons are pressed, it `+maj7`s the chord.
 
