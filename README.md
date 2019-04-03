@@ -215,7 +215,7 @@ We remove our convenience row of chords to add more cool modifiers to show off w
 
 #### Simultaneous principles in row, column keypads
 
-The possibility of pressing multiple keys at the same time allows for faster fingering of chords with modifiers, but introduces complexities of hardware and timing.
+The possibility of pressing multiple keys at the same time allows for faster fingering of chords with modifiers, but introduces complexities of hardware and timing. For a better introduction to these issues on a typical computer keyboard, [see here](https://en.wikipedia.org/wiki/Rollover_(key)).
 
 **No ground pin**: It's common for keypads to be wired such that each row and column corresponds to a pin, such that pressing the button in the first row and first column connects the first row pin (`row1`) to the first column pin (`col1`). Suppose that the button in the first row, second column is also pressed. then `row1`, `col1`, and `col2` are all connected to each other.
 
