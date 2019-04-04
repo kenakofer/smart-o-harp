@@ -36,6 +36,7 @@ void set_current_chord(int triad[]) {
     current_chord[0] = (triad[0] + current_key) % 12;
     current_chord[1] = (triad[1] + current_key) % 12;
     current_chord[2] = (triad[2] + current_key) % 12;
+    current_chord[3] = (triad[3] + current_key) % 12;
 }
 
 // All the modifiers, change the chord in place
@@ -114,6 +115,17 @@ void setup() {
     Serial.println("Finished with setup()");
 }
 
+int get_col_state(int col) {
+  int sum = 0;
+  for (int r=0; r<row_pin_count; r++) {
+    if (is_pressed(col,r)) {
+      int power = row_pin_count - r - 1;
+      sum += 1<<power;
+    }
+  }
+  return sum;
+}
+
 void loop() {
 
     delay(500);
@@ -132,6 +144,30 @@ void loop() {
             }
         }
         Serial.println();
+    }
+    Serial.println();
+
+    for (int c=0; c<col_pin_count; c++) {
+      Serial.println(get_col_state(c));
+    }
+    Serial.println();
+    
+    int c1 = get_col_state(0);
+    int c2 = get_col_state(1);
+    int c3 = get_col_state(2);
+
+    if (c3 == 1) {
+      set_current_chord(V);
+    } else if (c3 == 2) {
+      set_current_chord(I);
+    } else if (c3 == 3) {
+      set_current_chord(V);
+      add_min7(current_chord);
+    }
+
+    for (int n=0; n<4; n++) {
+      Serial.print(current_chord[n]);
+      Serial.print(" ");
     }
     Serial.println();
 }
