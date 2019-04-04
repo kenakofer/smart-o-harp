@@ -78,39 +78,54 @@ void add_maj7(int chord[]) {
     //chord.name = String(chord.name + "_maj7")
 }
 
-
-const int col_pin_numbers[] = { 4, 5, 6 };
+const int col_pin_count = 3;
+const int col_pin_numbers[] = { 0, 2, 3 };
 int col_pin_states[]   = { -1, -1, -1 };
 
-const int row_pin_numbers[] = { 0, 1, 2, 3 };
+const int row_pin_count = 4;
+const int row_pin_numbers[] = { 4, 5, 6, 7 };
 int row_pin_states[]   = { -1, -1, -1, -1 };
 
+void update_pin_states() {
+    // Save all the pin states
+    for (int i=0; i< col_pin_count; i++) {
+        col_pin_states[i] = digitalRead(col_pin_numbers[i]);
+    }
+    for (int i=0; i< row_pin_count; i++) {
+        row_pin_states[i] = digitalRead(row_pin_numbers[i]);
+    }
+}
+
+bool is_pressed(int col, int row) {
+  return row_pin_states[row] == LOW && col_pin_states[col] == LOW;
+}
+
 void setup() {
+    delay(100);
     Serial.begin(9600);
-    for (int i=0; i< sizeof(col_pin_numbers); i++) {
-        pinMode(col_pin_numbers[i], INPUT_PULLUP);
+    Serial.println("Setting up pins...");
+    for (int i=0; i< col_pin_count; i++) {
+      pinMode(col_pin_numbers[i], INPUT_PULLUP);
     }
-    for (int i=0; i< sizeof(row_pin_numbers); i++) {
-        pinMode(row_pin_numbers[i], INPUT_PULLUP);
+    for (int i=0; i< row_pin_count; i++) {
+      pinMode(row_pin_numbers[i], INPUT_PULLUP);
     }
+    
+    Serial.println("Finished with setup()");
 }
 
 void loop() {
 
     delay(500);
 
-    // Read all the pins once
-    for (int i=0; i< sizeof(col_pin_numbers); i++) {
-        col_pin_states[i] = digitalRead(col_pin_numbers[i]);
-    }
-    for (int i=0; i< sizeof(row_pin_numbers); i++) {
-        row_pin_states[i] = digitalRead(row_pin_numbers[i]);
-    }
+    Serial.println("Running loop...");
+
+    update_pin_states();
 
     // Debug print the buttons pushed
-    for (int r=0; r<sizeof(row_pin_states); r++) {
-        for (int c=0; c<sizeof(col_pin_states); c++) {
-            if (row_pin_states[r] == LOW && col_pin_states[c] == LOW) {
+    for (int r=0; r<row_pin_count; r++) {
+        for (int c=0; c<col_pin_count; c++) {
+            if (is_pressed(c,r)) {
                 Serial.print("1");
             } else {
                 Serial.print("0");
