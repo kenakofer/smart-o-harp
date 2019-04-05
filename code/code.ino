@@ -1,7 +1,18 @@
-int current_key = 0; // The key the instrument starts in, with C being 0
-const int tick_duration = 5; //How long (ms) between runs of the loop
-const int buffer_length = 10; // How many ticks the buffer_chord must remain unchanged before it becomes current_chord
+////////////////////////////////////////////
+// CONFIGURATION CONSTANTS
 
+int current_key = 0;            // The key the instrument starts in, with C being 0
+const int tick_duration = 5;    // How long (ms) between runs of the loop
+const int buffer_length = 10;   // How many ticks the buffer_chord must remain unchanged before it copies into current_chord
+
+const int col_pin_count = 3;                // How many column pins there are
+const int col_pin_numbers[] = { 0, 2, 3 };  // Arduino pin numbers for the column pins
+
+const int row_pin_count = 4;                  // How many row pins there are
+const int row_pin_numbers[] = { 4, 5, 6, 7 }; // Arduino pin numbers for the row pins
+
+// Key agnostic, chromatic descriptions of major chords on different scale degrees
+// They are used as templates to start building the chords. -1 means no note.
 const int NONE[] = {-1, -1, -1, -1};
 const int IV[] = {5, 9, 0, -1};
 const int I[] = {0, 4, 7, -1};
@@ -10,49 +21,69 @@ const int II[] = {2, 6, 9, -1};
 const int VI[] = {9, 1, 4, -1};
 const int III[] = {4, 8, 11, -1};
 const int VII[] = {11, 3, 6, -1};
-
 const int VIIb[] = {10, 2, 5, -1};
 const int VIb[] = {8, 0, 3, -1};
-const char *notes[] = {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"};
 
 const int latchPin = 8;  //Pin connected to latch pin (ST_CP) of 74HC595
 const int clockPin = 12; //Pin connected to clock pin (SH_CP) of 74HC595
 const int dataPin = 11; //Pin connected to Data in (DS) of 74HC595
 
-void change_key_by(int half_steps) {
-    current_key = current_key + half_steps % 12;
-}
+// Note names. These should only be used in debugging output.
+const char *notes[] = {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"};
 
-// Just the basic chords. Modifiers, including minor should all be applied as functions
-// -1 indicates no note
-/*const Chord triad_list[] = {
-  {"IV", {5, 9, 0, -1}},
-  {"I", {0, 4, 7, -1}},
-  {"V", {7, 11, 2, -1}},
-  {"II", {2, 6, 9, -1}},
-  {"VI", {9, 1, 4, -1}},
-  {"III", {4, 8, 11, -1}},
-  {"VII", {11, 3, 6, -1}},
-  };*/
-
-/* Key agnostic chord */
-/*typedef struct {
-  String name;
-  int scale_degrees[];
-  } Chord */
-
+//
+////////////////////////////////////////////
+// GLOBAL STATE VARIABLES
 
 int tick_counter = 0;  // Counts up with each loop();
+
+int col_pin_states[]   = { -1, -1, -1 };     // Length of this must agree with col_pin_count
+int row_pin_states[]   = { -1, -1, -1, -1 }; // Length of this must agree with row_pin_count
 
 int current_chord[] = {-1, -1, -1, -1};
 int prev_chord[] = {-1, -1, -1, -1};
 int buffer_chord[] = {-1, -1, -1, -1};
 int prev_buffer_chord[] = {-1, -1, -1, -1};
 
-
 bool just_changed_key = false; // Switches to allow keychange to only happen on new keypresses
 int buffer_counter = 0; // Counts up to bufferlength before copying buffer chord to current chord
 
+//
+////////////////////////////////////////////
+// UTILITY FUNCTIONS
+
+// Hardware utility functions
+
+bool is_pressed(int col, int row) {
+    return row_pin_states[row] == LOW && col_pin_states[col] == LOW;
+}
+
+int get_col_state(int col) {
+    int sum = 0;
+    for (int r=0; r<row_pin_count; r++) {
+        if (is_pressed(col,r)) {
+            int power = row_pin_count - r - 1;
+            sum += 1<<power;
+        }
+    }
+    return sum;
+}
+
+int only_keep_rightmost_bit(int num) {
+    for (int i=0; i<=7; i--) {
+        if (1<<i & num)
+            return 1<<i;
+    }
+}
+
+int only_keep_leftmost_bit(int num) {
+    for (int i=7; i>=0; i--) {
+        if (1<<i & num)
+            return 1<<i;
+    }
+}
+
+// Music utility functions
 
 bool is_same_chord(int chord1[], int chord2[]) {
     for (int i=0; i<4; i++) {
@@ -61,6 +92,11 @@ bool is_same_chord(int chord1[], int chord2[]) {
         }
     }
     return true;
+}
+
+int mod_key(int amount) {
+    current_key = (current_key + amount) % 12;
+    return current_key;
 }
 
 void update_current_chord() {
@@ -116,11 +152,6 @@ void actuate_current_chord() {
     digitalWrite(latchPin, HIGH);
 }
 
-int mod_key(int amount) {
-    current_key = (current_key + amount) % 12;
-    return current_key;
-}
-
 // Copy the specified triad into the buffer_chord
 void set_buffer_chord(int triad[]) {
     for (int i=0; i<4; i++) {
@@ -133,56 +164,39 @@ void set_buffer_chord(int triad[]) {
     }
 }
 
-// All the modifiers change the chord in place
+// All these modifiers change the chord in place
 void make_sus2(int chord[]) {
     chord[1] = (chord[0] + 2) % 12;
-    //chord.name = String(chord.name + "_sus2");
 }
 void make_minor(int chord[]) {
     chord[1] = (chord[0] + 3) % 12;
-    //chord.name = String(chord.name + "_min");
 }
 void make_major(int chord[]) {
     chord[1] = (chord[0] + 4) % 12;
-    //chord.name = String(chord.name + "_maj");
 }
 void make_sus4(int chord[]) {
     chord[1] = (chord[0] + 5) % 12;
-    //chord.name = String(chord.name + "_sus4");
 }
 void make_dim(int chord[]) {
     chord[1] = (chord[0] + 3) % 12;
     chord[2] = (chord[0] + 6) % 12;
-    //chord.name = String(chord.name + "_dim");
 }
 void make_aug(int chord[]) {
     chord[1] = (chord[0] + 4) % 12;
     chord[2] = (chord[0] + 8) % 12;
-    //chord.name = String(chord.name + "_aug");
 }
 void add_dim7(int chord[]) {
     chord[3] = (chord[0] + 9) % 12;
-    //chord.name = String(chord.name + "_dim7");
 }
 void add_min7(int chord[]) {
     chord[3] = (chord[0] + 10) % 12;
-    //chord.name = String(chord.name + "_min7");
 }
 void add_maj7(int chord[]) {
     chord[3] = (chord[0] + 11) % 12;
-    //chord.name = String(chord.name + "_maj7");
 }
 
-const int col_pin_count = 3;
-const int col_pin_numbers[] = { 0, 2, 3 };
-int col_pin_states[]   = { -1, -1, -1 };
-
-const int row_pin_count = 4;
-const int row_pin_numbers[] = { 4, 5, 6, 7 };
-int row_pin_states[]   = { -1, -1, -1, -1 };
-
 void update_pin_states() {
-    // Save all the pin states
+    // Save all the pin states so we only need to read them once each loop()
     for (int i=0; i< col_pin_count; i++) {
         col_pin_states[i] = digitalRead(col_pin_numbers[i]);
     }
@@ -191,9 +205,8 @@ void update_pin_states() {
     }
 }
 
-bool is_pressed(int col, int row) {
-    return row_pin_states[row] == LOW && col_pin_states[col] == LOW;
-}
+////////////////////////////////////////
+// SETUP AND LOOP
 
 void setup() {
     delay(100);
@@ -213,31 +226,6 @@ void setup() {
     Serial.println("Finished with setup()");
 }
 
-int get_col_state(int col) {
-    int sum = 0;
-    for (int r=0; r<row_pin_count; r++) {
-        if (is_pressed(col,r)) {
-            int power = row_pin_count - r - 1;
-            sum += 1<<power;
-        }
-    }
-    return sum;
-}
-
-int only_keep_rightmost_bit(int num) {
-    for (int i=0; i<=7; i--) {
-        if (1<<i & num)
-            return 1<<i;
-    }
-}
-
-int only_keep_leftmost_bit(int num) {
-    for (int i=7; i>=0; i--) {
-        if (1<<i & num)
-            return 1<<i;
-    }
-}
-
 void loop() {
 
     delay(tick_duration);
@@ -245,30 +233,35 @@ void loop() {
 
     update_pin_states();
 
+    // We reset the buffer_chord to be rebuilt in every loop based on pin inputs.
+    // The current_chord, on the other hand, remains constant between loops.
     set_buffer_chord(NONE);
 
-    int c1 = get_col_state(0);
-    int c2 = get_col_state(1);
-    int c3 = get_col_state(2);
-
-    // Exhaustive chord logic (More like "exhausting", amirite?)
+    //////////////////////////////////////////////////////////////////////////////////
+    // EXHAUSTIVE CHORD LAYOUT LOGIC (More like "exhausting", amirite?)
+    // Change it to suit your needs.
     //
     // Layout (yes its rows and columns are switched, but it's consistent with the code):
     //
     //       row1                  row2                    row3                  row4
     // col3: VIIb (vii°) (vii°7)   IV (IV7) (IVmaj7)       I (I7) (Imaj7)        V (V7) (Vmaj7)
     // col2: v (iv) (i)            ii (II7) (ii7)          vi (VI7) (vi7)        iii (III7) (iii7)
-    // col1: mod4                  prev                    mod5                  +sus4
+    // col1: mod4                  VIb                     mod5                  +sus4
+
+    // using int for convenience, could just as well be an array of bools or something.
+    int c1 = get_col_state(0);
+    int c2 = get_col_state(1);
+    int c3 = get_col_state(2);
 
     // Catch ambiguity (presume only the highest column, lowest row in the c1, c2, c3 variables)
     // Though these tests will be true when buttons in a row are pressed, the c states should not change in that case.
-    if (c1 && c2 > 0) {
+    if (c1 && c2) {
         c1 = only_keep_rightmost_bit(c1);
         c2 = only_keep_leftmost_bit(c2);
-    } else if (c1 && c3 > 0) {
+    } else if (c1 && c3) {
         c1 = only_keep_rightmost_bit(c1);
         c3 = only_keep_leftmost_bit(c3);
-    } else if (c2 && c3 > 0) {
+    } else if (c2 && c3) {
         c2 = only_keep_rightmost_bit(c2);
         c3 = only_keep_leftmost_bit(c3);
     }
@@ -382,7 +375,6 @@ void loop() {
     // Reset just_changed_key if neither mod button is being pressed.
     if (just_changed_key && (c1 & 1<<3) == 0 && (c1 & 1<<1) == 0) {
         just_changed_key = false;
-
     }
 
     // ...and the sus4 is REEEEEEAAAL special as the only one that gets to create ambiguity
@@ -390,9 +382,15 @@ void loop() {
         make_sus4(buffer_chord);
     }
 
+    // END CHORD LAYOUT LOGIC
+    //////////////////
+
+    // Buffer chord counter tracking: We want to know once the buffer_chord hasn't changed for a few iterations.
     if (is_same_chord(buffer_chord, prev_buffer_chord)) {
+        // If they're the same, we just need to keep track of how long it's been
         buffer_counter += 1;
     } else {
+        // Otherwise, reset the counter to 0 set prev_buffer_chord to buffer_chord
         buffer_counter = 0;
         update_prev_buffer_chord();
         Serial.print(tick_counter);
@@ -406,12 +404,17 @@ void loop() {
         Serial.println();
     }
 
+    // Enact the chord (set current_chord = buffer_chord) iff we've 
+    // reached the needed buffer_counter,
+    // have more than NONE in the buffer_chord, and
+    // buffer_chord is different from the current chord.
     if (buffer_counter == buffer_length 
             && ! is_same_chord(buffer_chord, NONE)
             && ! is_same_chord(buffer_chord, current_chord)
        ) {
         update_prev_chord();
         update_current_chord();
+        // This line actually updates the latches to change the solenoids
         actuate_current_chord();
         Serial.println("Set current chord");
     }
