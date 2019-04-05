@@ -22,20 +22,20 @@ void change_key_by(int half_steps) {
 // Just the basic chords. Modifiers, including minor should all be applied as functions
 // -1 indicates no note
 /*const Chord triad_list[] = {
-    {"IV", {5, 9, 0, -1}},
-    {"I", {0, 4, 7, -1}},
-    {"V", {7, 11, 2, -1}},
-    {"II", {2, 6, 9, -1}},
-    {"VI", {9, 1, 4, -1}},
-    {"III", {4, 8, 11, -1}},
-    {"VII", {11, 3, 6, -1}},
-};*/
+  {"IV", {5, 9, 0, -1}},
+  {"I", {0, 4, 7, -1}},
+  {"V", {7, 11, 2, -1}},
+  {"II", {2, 6, 9, -1}},
+  {"VI", {9, 1, 4, -1}},
+  {"III", {4, 8, 11, -1}},
+  {"VII", {11, 3, 6, -1}},
+  };*/
 
 /* Key agnostic chord */
 /*typedef struct {
-    String name;
-    int scale_degrees[];
-} Chord */
+  String name;
+  int scale_degrees[];
+  } Chord */
 
 
 int tick_counter = 0;  // Counts up with each loop();
@@ -51,30 +51,30 @@ int buffer_counter = 0; // Counts up to bufferlength before copying buffer chord
 
 
 bool is_same_chord(int chord1[], int chord2[]) {
-  for (int i=0; i<4; i++) {
-    if (chord1[i] != chord2[i]) {
-      return false;
+    for (int i=0; i<4; i++) {
+        if (chord1[i] != chord2[i]) {
+            return false;
+        }
     }
-  }
-  return true;
+    return true;
 }
 
 void update_current_chord() {
-  for (int i=0; i<4; i++) {
-    current_chord[i] = buffer_chord[i];
-  }
+    for (int i=0; i<4; i++) {
+        current_chord[i] = buffer_chord[i];
+    }
 }
 
 void update_prev_chord() {
-  for (int i=0; i<4; i++) {
-    prev_chord[i] = current_chord[i];
-  }
+    for (int i=0; i<4; i++) {
+        prev_chord[i] = current_chord[i];
+    }
 }
 
 void update_prev_buffer_chord() {
-  for (int i=0; i<4; i++) {
-    prev_buffer_chord[i] = buffer_chord[i];
-  }
+    for (int i=0; i<4; i++) {
+        prev_buffer_chord[i] = buffer_chord[i];
+    }
 }
 
 int mod_key(int amount) {
@@ -85,12 +85,12 @@ int mod_key(int amount) {
 // Copy the specified triad into the buffer_chord
 void set_buffer_chord(int triad[]) {
     for (int i=0; i<4; i++) {
-      // Only change the fourth note by key if it's a played note
-      if (triad[i] >= 0) {
-          buffer_chord[i] = (triad[i] + current_key) % 12;
-      } else {
-          buffer_chord[i] = triad[i];
-      }
+        // Only change the fourth note by key if it's a played note
+        if (triad[i] >= 0) {
+            buffer_chord[i] = (triad[i] + current_key) % 12;
+        } else {
+            buffer_chord[i] = triad[i];
+        }
     }
 }
 
@@ -153,7 +153,7 @@ void update_pin_states() {
 }
 
 bool is_pressed(int col, int row) {
-  return row_pin_states[row] == LOW && col_pin_states[col] == LOW;
+    return row_pin_states[row] == LOW && col_pin_states[col] == LOW;
 }
 
 void setup() {
@@ -161,24 +161,24 @@ void setup() {
     Serial.begin(9600);
     Serial.println("Setting up pins...");
     for (int i=0; i< col_pin_count; i++) {
-      pinMode(col_pin_numbers[i], INPUT_PULLUP);
+        pinMode(col_pin_numbers[i], INPUT_PULLUP);
     }
     for (int i=0; i< row_pin_count; i++) {
-      pinMode(row_pin_numbers[i], INPUT_PULLUP);
+        pinMode(row_pin_numbers[i], INPUT_PULLUP);
     }
-    
+
     Serial.println("Finished with setup()");
 }
 
 int get_col_state(int col) {
-  int sum = 0;
-  for (int r=0; r<row_pin_count; r++) {
-    if (is_pressed(col,r)) {
-      int power = row_pin_count - r - 1;
-      sum += 1<<power;
+    int sum = 0;
+    for (int r=0; r<row_pin_count; r++) {
+        if (is_pressed(col,r)) {
+            int power = row_pin_count - r - 1;
+            sum += 1<<power;
+        }
     }
-  }
-  return sum;
+    return sum;
 }
 
 int only_keep_rightmost_bit(int num) {
@@ -196,14 +196,14 @@ int only_keep_leftmost_bit(int num) {
 }
 
 void loop() {
-  
+
     delay(tick_duration);
     tick_counter += 1;
-    
+
     update_pin_states();
 
     set_buffer_chord(NONE);
-    
+
     int c1 = get_col_state(0);
     int c2 = get_col_state(1);
     int c3 = get_col_state(2);
@@ -232,45 +232,45 @@ void loop() {
 
     // Starting with the col3 major chords
     if (c3 == 1) {        // 0001: V chord
-      set_buffer_chord(V);
+        set_buffer_chord(V);
     } else if (c3 == 2) { // 0010: I chord
-      set_buffer_chord(I);
+        set_buffer_chord(I);
     } else if (c3 == 3) { // 0011: V7 chord
-      set_buffer_chord(V);
-      add_min7(buffer_chord);
+        set_buffer_chord(V);
+        add_min7(buffer_chord);
     } else if (c3 == 4) { // 0100: IV chord
-      set_buffer_chord(IV);
+        set_buffer_chord(IV);
     } else if (c3 == 5) { // 0101: undefined
 
     } else if (c3 == 6) { // 0110: I7 chord
-      set_buffer_chord(I);
-      add_min7(buffer_chord);
+        set_buffer_chord(I);
+        add_min7(buffer_chord);
     } else if (c3 == 7) { // 0111: Vmaj7 chord
-      set_buffer_chord(V);
-      add_maj7(buffer_chord);
+        set_buffer_chord(V);
+        add_maj7(buffer_chord);
     } else if (c3 == 8) { // 1000: VIIb chord
-      set_buffer_chord(VIIb);
+        set_buffer_chord(VIIb);
     } else if (c3 == 9) { // 1001: vii° chord
-      set_buffer_chord(VII);
-      make_dim(buffer_chord);
+        set_buffer_chord(VII);
+        make_dim(buffer_chord);
     } else if (c3 == 10) { // 1010: undefined
 
     } else if (c3 == 11) { // 1011: vii°7 chord (fully diminished)
-      set_buffer_chord(VII);
-      make_dim(buffer_chord);
-      add_dim7(buffer_chord);
+        set_buffer_chord(VII);
+        make_dim(buffer_chord);
+        add_dim7(buffer_chord);
     } else if (c3 == 12) { // 1100: IV7 chord
-      set_buffer_chord(IV);
-      add_min7(buffer_chord);
+        set_buffer_chord(IV);
+        add_min7(buffer_chord);
     } else if (c3 == 13) { // 1101: IVmaj7 chord
-      set_buffer_chord(IV);
-      add_maj7(buffer_chord);
+        set_buffer_chord(IV);
+        add_maj7(buffer_chord);
     } else if (c3 == 14) { // 1110: Imaj7 chord
-      set_buffer_chord(I);
-      add_maj7(buffer_chord);
+        set_buffer_chord(I);
+        add_maj7(buffer_chord);
     } else if (c3 == 15) { // 1111: undefined
 
-    // Col2 (minors):
+        // Col2 (minors):
     } else if (c2 == 1) { // 0001: iii chord
         set_buffer_chord(III);
         make_minor(buffer_chord);
@@ -316,8 +316,8 @@ void loop() {
         add_min7(buffer_chord);
     } else if (c2 == 15) { // 1111: undefined
 
-    // col1: buttons that should be pressed on their own
-    // note that 1<<3 means bin1000, which means checking the FIRST pin. Can be confusing...
+        // col1: buttons that should be pressed on their own
+        // note that 1<<3 means bin1000, which means checking the FIRST pin. Can be confusing...
     } else if (c1 & 1<<3) { // mod4: Change key up by a fourth (5 half steps)
         if (! just_changed_key) {
             mod_key(5);
@@ -339,38 +339,36 @@ void loop() {
     // Reset just_changed_key if neither mod button is being pressed.
     if (just_changed_key && (c1 & 1<<3) == 0 && (c1 & 1<<1) == 0) {
         just_changed_key = false;
-        
+
     }
 
     // ...and the sus4 is REEEEEEAAAL special as the only one that gets to create ambiguity
     if (c1 & 1<<0) { // sus4
         make_sus4(buffer_chord);
     }
-    
+
     if (is_same_chord(buffer_chord, prev_buffer_chord)) {
         buffer_counter += 1;
     } else {
-       buffer_counter = 0;
-       update_prev_buffer_chord();
-       Serial.print(tick_counter);
-       Serial.print(" ");
-       for (int n=0; n<4; n++) {
-        if (buffer_chord[n] >= 0) {
-          Serial.print(notes[buffer_chord[n]]);
-          Serial.print(" ");
+        buffer_counter = 0;
+        update_prev_buffer_chord();
+        Serial.print(tick_counter);
+        Serial.print(" ");
+        for (int n=0; n<4; n++) {
+            if (buffer_chord[n] >= 0) {
+                Serial.print(notes[buffer_chord[n]]);
+                Serial.print(" ");
+            }
         }
-      }
-      Serial.println();
+        Serial.println();
     }
 
     if (buffer_counter == buffer_length 
-          && ! is_same_chord(buffer_chord, NONE)
-          && ! is_same_chord(buffer_chord, current_chord)
-          ) {
-      update_prev_chord();
-      update_current_chord();
-      Serial.println("Set current chord");
+            && ! is_same_chord(buffer_chord, NONE)
+            && ! is_same_chord(buffer_chord, current_chord)
+       ) {
+        update_prev_chord();
+        update_current_chord();
+        Serial.println("Set current chord");
     }
-
-    
 }
