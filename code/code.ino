@@ -33,7 +33,25 @@ const int VII[] = {11, 3, 6, -1};
 
 const int VIIb[] = {10, 2, 5, -1};
 const int VIb[] = {8, 0, 3, -1};
+const char *notes[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+
 int current_chord[] = {-1, -1, -1, -1};
+int prev_chord[] = {-1, -1, -1, -1};
+
+bool is_same_chord(int chord1[], int chord2[]) {
+  for (int i=0; i<4; i++) {
+    if (chord1[i] != chord2[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void update_prev_chord() {
+  for (int i=0; i<4; i++) {
+    prev_chord[i] = current_chord[i];
+  }
+}
 
 int mod_key(int amount) {
     current_key = (current_key + amount) % 12;
@@ -157,14 +175,11 @@ int only_keep_leftmost_bit(int num) {
 
 void loop() {
 
-    delay(500);
-
-    Serial.println("Running loop...");
-
+    delay(20);
     update_pin_states();
 
     // Debug print the buttons pushed
-    for (int r=0; r<row_pin_count; r++) {
+    /*for (int r=0; r<row_pin_count; r++) {
         for (int c=0; c<col_pin_count; c++) {
             if (is_pressed(c,r)) {
                 Serial.print("1");
@@ -174,12 +189,12 @@ void loop() {
         }
         Serial.println();
     }
-    Serial.println();
+    Serial.println();*/
 
-    for (int c=0; c<col_pin_count; c++) {
+    /*for (int c=0; c<col_pin_count; c++) {
       Serial.println(get_col_state(c));
     }
-    Serial.println();
+    Serial.println();*/
     
     int c1 = get_col_state(0);
     int c2 = get_col_state(1);
@@ -197,14 +212,14 @@ void loop() {
     // Catch ambiguity (presume only the highest column, lowest row in the c1, c2, c3 variables)
     // Though these tests will be true when buttons in a row are pressed, the c states should not change in that case.
     if (c1 && c2 > 0) {
-        c1 = only_keep_rightmost_bit(c1)
-        c2 = only_keep_leftmost_bit(c2)
+        c1 = only_keep_rightmost_bit(c1);
+        c2 = only_keep_leftmost_bit(c2);
     } else if (c1 && c3 > 0) {
-        c1 = only_keep_rightmost_bit(c1)
-        c3 = only_keep_leftmost_bit(c3)
+        c1 = only_keep_rightmost_bit(c1);
+        c3 = only_keep_leftmost_bit(c3);
     } else if (c2 && c3 > 0) {
-        c2 = only_keep_rightmost_bit(c2)
-        c3 = only_keep_leftmost_bit(c3)
+        c2 = only_keep_rightmost_bit(c2);
+        c3 = only_keep_leftmost_bit(c3);
     }
 
     // Starting with the col3 major chords
@@ -294,31 +309,39 @@ void loop() {
     } else if (c2 == 15) { // 1111: undefined
 
     // col1: buttons that should be pressed on their own
-    } else if (c1 & 1<<0) { // mod4: Change key up by a fourth (5 half steps)
+    // note that 1<<3 means bin1000, which means checking the FIRST pin. Can be confusing...
+    } else if (c1 & 1<<3) { // mod4: Change key up by a fourth (5 half steps)
         if (! just_changed_key)
             mod_key(5);
         just_changed_key = true;
-    } else if (c1 & 1<<1) { // VIb, because why not.
+    } else if (c1 & 1<<2) { // VIb, because why not.
         set_current_chord(VIb);
-    } else if (c1 & 1<<2) { // mod5: Change key up by a fifth (7 half steps)
+    } else if (c1 & 1<<1) { // mod5: Change key up by a fifth (7 half steps)
         if (! just_changed_key)
             mod_key(7);
         just_changed_key = true;
     }
 
     // Reset just_changed_key if neither mod button is being pressed.
-    if (c1 & 1<<0 != 0 && c1 & 1<<2 != 0) {
+    if (just_changed_key && (c1 & 1<<3) == 0 && (c1 & 1<<1) == 0) {
         just_changed_key = false;
     }
 
     // ...and the sus4 is REEEEEEAAAL special as the only one that gets to create ambiguity
-    if (c1 & 1<<3) { // sus4
+    if (c1 & 1<<0) { // sus4
         make_sus4(current_chord);
     }
 
-    for (int n=0; n<4; n++) {
-      Serial.print(current_chord[n]);
-      Serial.print(" ");
+    if (! is_same_chord(current_chord, prev_chord)) {
+       update_prev_chord();
+       for (int n=0; n<4; n++) {
+        if (current_chord[n] >= 0) {
+          Serial.print(notes[current_chord[n]]);
+          Serial.print(" ");
+        }
+      }
+      Serial.println();
     }
-    Serial.println();
+
+    
 }
