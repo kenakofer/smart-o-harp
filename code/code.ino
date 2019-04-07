@@ -15,6 +15,10 @@ const int VIIb[] = {10, 2, 5, -1};
 const int VIb[] = {8, 0, 3, -1};
 const char *notes[] = {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"};
 
+const int latchPin = 8;  //Pin connected to latch pin (ST_CP) of 74HC595
+const int clockPin = 12; //Pin connected to clock pin (SH_CP) of 74HC595
+const int dataPin = 11; //Pin connected to Data in (DS) of 74HC595
+
 void change_key_by(int half_steps) {
     current_key = current_key + half_steps % 12;
 }
@@ -75,6 +79,41 @@ void update_prev_buffer_chord() {
     for (int i=0; i<4; i++) {
         prev_buffer_chord[i] = buffer_chord[i];
     }
+}
+
+void actuate_current_chord() {
+    // Get the byte representation of the chord's notes
+    int bitsToSend = 0;
+    for (int i=0; i<4; i++) {
+        if (current_chord[i] >= 0) {
+          bitsToSend += 1<<current_chord[i];
+          Serial.print("Adding ");
+          Serial.println(1<<current_chord[i]);
+        }
+    }
+    if (bitsToSend == 0){
+      Serial.println("Will not actuate: Chord is NONE");
+    }
+    for (int n=0; n<4; n++) {
+      Serial.print(current_chord[n]);
+      Serial.print(" ");
+    }
+    Serial.println();
+    
+    byte A = bitsToSend & 0x00ff;
+    byte B = (bitsToSend & 0xff00) >> 8;
+    
+    Serial.print("Actuating chord with bytes: ");
+    Serial.println(A);
+    Serial.println(B);
+
+    // Start the shift register listening
+    digitalWrite(latchPin, LOW);
+    // shift the bytes out, A to the first, B to the second:
+    shiftOut(dataPin, clockPin, MSBFIRST, A);
+    shiftOut(dataPin, clockPin, MSBFIRST, B);
+    // Stop listening, turn on the outputs
+    digitalWrite(latchPin, HIGH);
 }
 
 int mod_key(int amount) {
@@ -166,6 +205,10 @@ void setup() {
     for (int i=0; i< row_pin_count; i++) {
         pinMode(row_pin_numbers[i], INPUT_PULLUP);
     }
+
+    pinMode(latchPin, OUTPUT);
+    pinMode(dataPin, OUTPUT);  
+    pinMode(clockPin, OUTPUT);
 
     Serial.println("Finished with setup()");
 }
@@ -369,6 +412,7 @@ void loop() {
        ) {
         update_prev_chord();
         update_current_chord();
+        actuate_current_chord();
         Serial.println("Set current chord");
     }
 }
