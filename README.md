@@ -263,5 +263,19 @@ I'm not sure how useful the `prev` button will be in this layout, because most b
 
 --------
 
-## Arduino setup (TODO)
+## Arduino setup
+
+[Here's the code](https://github.com/kenanbit/smart-o-harp/blob/master/code/code.ino), it's should be simple and well documented.
+
+3 main topics here, which others have covered pretty well already so I don't need to. Click the links to read more.
+
+1. [8-bit shift registers](https://www.arduino.cc/en/tutorial/ShiftOut): Getting the (at least) 12 outputs necessary to control 12 systems of solenoids independently, without using up all the arduino's pins.
+
+2. [Driving solenoids with an arduino](https://core-electronics.com.au/tutorials/solenoid-control-with-arduino.html): Except that we will drive the solenoids and the arduino off the same power source, so maybe this isn't super relevant.
+
+3. [Keypad input method](https://www.instructables.com/id/Arduino-Button-Tutorial/): having the arduino read in button presses. This is basic input/output stuff, and the linked tutorial is excellent for looking at a single case. I've covered the specific convoluted logic of my keypad already.
+
+Here's my breadboard setup all laid out:
+
+![Breadboard Fritzing diagram](smart-o-harp_bb.jpg)
 
