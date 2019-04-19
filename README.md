@@ -12,6 +12,8 @@ See [Avoiding harmonic nodes](#avoiding-harmonic-nodes) on the importance of con
 
 See [Keypad → Notes logic](#keypad--notes-logic) for more discussion than you wanted about sensible chord setups.
 
+See [Wiring and Components](#wiring-and-components) to see how and with what it can be constructed.
+
 --------
 
 ## Motivation
@@ -263,9 +265,7 @@ I'm not sure how useful the `prev` button will be in this layout, because most b
 
 --------
 
-## Arduino setup
-
-[Here's the code](https://github.com/kenanbit/smart-o-harp/blob/master/code/code.ino), it's should be simple and well documented.
+## Wiring and Components
 
 3 main topics here, which others have covered pretty well already so I don't need to. Click the links to read more.
 
@@ -275,7 +275,36 @@ I'm not sure how useful the `prev` button will be in this layout, because most b
 
 3. [Keypad input method](https://www.instructables.com/id/Arduino-Button-Tutorial/): having the arduino read in button presses. This is basic input/output stuff, and the linked tutorial is excellent for looking at a single case. I've covered the specific convoluted logic of my keypad already.
 
-Here's my breadboard setup all laid out:
+Here's my breadboard setup all laid out. This is diagram version 2, using the nano and fixing some wire placement issues from the first version. 
 
-![Breadboard Fritzing diagram](smart-o-harp_bb.jpg)
+**Disclaimer**: I'm not great at electronics as I write this. I fried several components on my way to what I hope is a safe, working design.
+
+![Breadboard Fritzing diagram](smart-o-harp_bb_v2.jpg)
+
+#### Diagram notes
+
+For every one solenoid shown in the diagram, there will be upwards of 4 solenoids wired in parallel with it, so that all the `C` solenoids share a transistor, and so do the `C#` solenoids etc.
+
+The 4 "extra" outputs could be used to wire the 4 bottom strings of the autoharp individually, so that you can have, for example, the `G7` chord not include the bottom `F`, but still include all the other `F`s.
+
+Other than using 12V to power the arduino on the Vin pin, keep the 12V as far away from the arduino as possible. I fried one Nano by momentarily bridging a connection from 12V to the Nano's 5V pin.
+
+
+#### Components list
+
+
+ * I used [this SB1660 busboard](https://www.amazon.com/gp/product/B00LLOOA0U) for soldering a semi-permanent prototype.
+ * Arduino Nano
+ * 12V, 5A power supply
+ * 2 x 74HC595 chip
+ * 12-16 x 1kΩ resistors
+ * ~36 x [12V 120mA spring push pull solenoids](https://www.ebay.com/itm/12V-DC-Suction-Micro-Electromagnet-Spring-Push-Pull-Type-Rod-Solenoid-Magnet-4mm/153089629798) (You need one for each autoharp string.)
+ * 12-16 x 2N2222 (NPN, BJT) transistors
+ * 12-16 x 1N4001 diodes
+
+----
+
+## Code
+
+[Here's the code](https://github.com/kenanbit/smart-o-harp/blob/master/code/code.ino). It's fairly well-documented.
 
