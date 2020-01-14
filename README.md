@@ -1,6 +1,6 @@
 ## Summary
 
-This site details an ongoing project to improve the chord selection mechanism on chromatic Autoharps/Chromaharps (hereafter called just "autoharps"). An arduino reads inputs from a keypad, computes the desired chord from the keypresses, and mechanically dampens the undesired strings. 
+This site details an ongoing project to improve the chord selection mechanism on chromatic Autoharps/Chromaharps (hereafter called just "autoharps"). An arduino reads inputs from a keypad, computes the desired chord from the keypresses, and mechanically dampens the undesired strings.
 
 It does **not** strum or pluck for the human, nor does it change chords without human input.
 
@@ -55,25 +55,35 @@ This is my current pursuit. Every string has a small solenoid positioned so that
 
 **Cons**: Raised solenoids (undampened strings) draw current while remaining raised (one of my tiny $1 solenoids needs at least 70 mA to start lifting, and will continue to draw that while raised).
 
+**Edit 01/13/2020**: On the second build iteration, I found solutions to the energy usage issues.
+
+First, using a [voltage regulator](https://www.amazon.com/DROK-Converter-5-3V-32V-Regulator-Transformer/dp/B078Q1624B/), I was able to reduce the voltage to 9.5 or 10 volts, which reduces current through each solenoid. Each solenoid now needs about 140mA to raise.
+
+Second, one of the solenoids only needs a tiny fraction of that power to stay raised, so the arduino can regulate down the power after a short time, greatly reducing energy costs.
+
+This was a big problem to solve: It makes the prospect of raising all solenoids at once manageable, battery solutions are far more feasible, and the solenoids and components don't get super hot anymore!
+
 #### Depress single-note bars with motor push
 
-This is the second simplest solution. There are 12 "chord" bars, but their felts are cut so that one dampens only the `C`s, one dampens only the `C#`s, etc. Now to form an arbitrary chord, press down the set of bars that correspond to the pitch classes you **don't** want in the chord. Each depression will require more force than solenoids can probably supply, so higher torque stepper motors may be better.
+This is the second simplest solution. There are 12 "chord" bars, but their felts are cut so that one dampens only the `C`s, one dampens only the `C#`s, etc. Now to form an arbitrary chord, press down the set of bars that correspond to the pitch classes you **don't** want in the chord. Each depression will probably require more force than small solenoids can probably supply, so higher torque stepper motors may be better.
 
 **Construction summary**: From an autoharp with exposed chord bars, take 12 bars and cut their felts to only dampen one pitch class. Replace them in a way to avoid damping on harmonic nodes. Get 12 high torque stepper motors with arms that swivel to straight down (to depress a bar). Mount them above the bars somehow, taking into account their difficult dimensions and the point of downward force on the bar relative to the strings being dampened. Given my lack of construction experience, this last task was too daunting for me.
 
 **Considerations**: Force of dampening. Avoiding harmonic nodes.
 
-**Pros**: Minimal power usage when not changing chords. Probably cheaper than the solenoids if done right, but not by much. Probably can be powered by a battery.
+**Pros**: Minimal power usage when not changing chords. May be cheaper than the solenoids if done effectively.
 
 **Cons**: Complicated mounting that occupies space in front of chord bars, which may get in the way of the strumming hand.
 
 #### Depress single-note bars with down pulling strings
 
-Like the last in terms of the single note bars. For each bar: Tie a string to each end, run it straight downward and around a pivot point, then pull on both ends to depress the bar. Use a motor head to pull the strings taut to dampen a note.
+I only mention this because I seriously tried making it work for a bit. Wouldn't recommend it.
 
-**Considerations**: Allowing the motors to do no work when not changing chords. Motors need to be about as high torque as previous.
+Like the above in terms of the single note bars. For each bar: Tie a string to each end, run it straight downward and around a pivot point, then pull on both ends to depress the bar. Use a motor head to pull the strings taut to dampen a note.
 
-**Pros**: The complicated mounting of the previous can be relocated somewhere less invasive (inside the autoharp body would be really interesting. Probably can be powered by a battery.
+**Considerations**: Allowing the motors to do no work when not changing chords. Motors need to have some torque.
+
+**Pros**: The complicated mounting of the previous can be relocated somewhere less invasive (inside the autoharp body would be really interesting.
 
 **Cons**: Starting to get quite complicated.
 
@@ -83,7 +93,7 @@ Like the last in terms of the single note bars. For each bar: Tie a string to ea
 
 See the [Wikipedia article](https://en.wikipedia.org/wiki/Harmonic) if you don't know what a harmonic node is. To experience it, place your finger or an eraser exactly halfway along a string, and pluck the string. An octave above the string's note will resonate. Slide along the string to find other points where the string will still sound.
 
-That point on the string is a harmonic node, and is a very bad location for a felt to touch the string to keep it from sounding. There are other harmonic nodes at `(1/3, 2/3, 1/4, 3/4, 1/5, 2/5, ...)` etc. (all the rational numbers between 0 and 1). As the denominator gets bigger, the sound from it gets weaker.
+That point on the string is a harmonic node, and is a poor location for a felt to dampen sound. There are other harmonic nodes at `(1/3, 2/3, 1/4, 3/4, 1/5, 2/5, ...)` etc. (all the rational numbers between 0 and 1). As the denominator gets bigger, it matters less in this context.
 
 Whenever we mess with positions of bars and felts on the autoharp, we need to keep this consideration a priority to minimize extraneous noise while strumming. Consider marking all the harmonic nodes on the strings (e.g. with a red marker) before deciding on bar/felt placements that avoid those spots.
 
@@ -91,7 +101,11 @@ Whenever we mess with positions of bars and felts on the autoharp, we need to ke
 
 ## Keypad &rarr; Notes logic
 
+***Edit 01/13/2020***: If you don't care about motivations and thought processes, skip all this (very interesting) stuff past self wrote. I'll cover my current favorite keypad layout in [On Second Construction](#on-second-construction). That said, I still basically agree with all of this, past self just overlooked a few possibilities and didn't have enough buttons to press.
+
 This project has the opportunity for a very consistent, learnable, ergonomic, key agnostic chord control mechanism. Optimizing for all these is a real puzzle, and different musicians will have different opinions and desires in this area.
+
+Thankfully, the code on the arduino is far more easily changed than the mechanics of the construction, so we don't have to build a new autoharp if we forget a chord.
 
 In this section, there will be tension between 1) incorporating more buttons/controls/physical complexity into the design, so that the amount of interaction needed to change to arbitrary chords is minimized, and 2) having fewer buttons/controls, so that the size/cost/physical complexity is minimized, but more interaction is needed to specify arbitrary chords. Each person probably has their own balance, but I lean more toward the fewer buttons/controls because I'm bad at electronics.
 
@@ -103,7 +117,7 @@ Similarly, in a minor key (using the roman numeral `vi` as the tonic chord for c
 
 Songs with the richest harmonies have both minor and major progressions in them, so it behooves us to not only make the system key agnostic, but also *tonality agnostic* (a term I just made up: a song that starts major and then goes minor or vice versa shouldn't throw us for a loop).
 
-The first 7 elements of each list have 6 in common, which (probably due to some arcane property of (meta-)music-theory) are also six-in-a-row around the circle of fifths: `(IV, I, V, ii, vi, iii)`. 
+The first 7 elements of each list have 6 in common, which (probably due to some arcane property of (meta-)music-theory) are also six-in-a-row around the circle of fifths: `(IV, I, V, ii, vi, iii)`.
 
 Or, arranging them in rows as autoharpists typically do:
 
@@ -114,7 +128,7 @@ Or, arranging them in rows as autoharpists typically do:
 
 This seems like an optimal arrangement of 6 buttons for playing diatonically, to be key and tonality agnostic. I'll treat these 6 chords as the core chords, which should be accessible through a single button press.
 
-To actually make it key agnostic though, there needs to be a way to play in more than one key. 
+To actually make it key agnostic though, there needs to be a way to play in more than one key.
 
 **Fixed chord root buttons**: We could do this with static buttons by having 24 buttons that we could arrange in 2 literal circles of fifths. The circles could be one inside the other, and then we literally have a circle of fifths as a control board:
 
@@ -124,7 +138,7 @@ To actually make it key agnostic though, there needs to be a way to play in more
 
 If your thumb is used to joysticks, another idea is to map the sectors of a joystick's movement to the circle of fifths. The lack of tactile feedback on the boundaries between chords, or the small 30&deg; sectors might be issues.
 
-**Dynamic chord root buttons**: We can try to use program state to do it with fewer buttons: 6 buttons could code for `(IV, I, V, ii, vi, iii)` as in the table above, and 2 buttons could be used to change our key. Each button can change the key one direction or another around the circle of fifths. This has the disadvantage of not being able to jump to some arbitrary chord root outside the key: `VIIb` and `VIb` come to mind as somewhat common examples. And the chord `vii°` is entirely in the key and we can't reach it either. 
+**Dynamic chord root buttons**: We can try to use program state to do it with fewer buttons: 6 buttons could code for `(IV, I, V, ii, vi, iii)` as in the table above, and 2 buttons could be used to change our key. Each button can change the key one direction or another around the circle of fifths. This has the disadvantage of not being able to jump to some arbitrary chord root outside the key: `VIIb` and `VIb` come to mind as somewhat common examples. And the chord `vii°` is entirely in the key and we can't reach it either.
 
 The biggest problem is that the II and III chords aren't there. Adding another row can fix that, and also gives us all of the first 7 most important chords in major and minor from above:
 
@@ -148,7 +162,7 @@ It isn't usually possible to predict the presence of major sevenths from the key
 
 Alternatively, consider that a single button could be double tapped to get a different behavior, e.g. `+7` once for `+min7` and twice for `+maj7`.
 
-**Swapping major/minor triads**: A `ii` becomes a `II`. A `iii` becomes a `III`. A common progression at the end of songs: `(I - IV - iv - I)`. The `IV` and `V` in a major key get swapped out with their parallel minor counterparts for a more edgy harmony. The [Picardy third](https://en.wikipedia.org/wiki/Picardy_third) makes the last chord of a minor song (un)expectedly major.
+**Swapping major/minor triads**: A `ii` becomes a `II`. A `iii` becomes a `III`. A common progression at the end of songs: `(I - iv - I)`. The `IV` and `V` in a major key get swapped out with their parallel minor counterparts for a more edgy harmony. The [Picardy third](https://en.wikipedia.org/wiki/Picardy_third) makes the last chord of a minor song (un)expectedly major.
 
 Though a minor button and a major button separately are simpler to understand, the minor button would only be useful on major chords, and the major button only on minor chords. Combining them into a single button saves a button for something else.
 
@@ -158,7 +172,7 @@ There are a few inelegant hacks we can use if we don't want to add so many butto
 
 We can co-opt other buttons that will not be much use in diminished chords, such as the `+maj7`, to be a `+min6` for the fully diminished chord. We can use the `+min7` as is to produce a half-diminished chord. Each of these chords would require 3 button presses: the `V`, the `dim`, and whichever `+7` button.
 
-**Augmented chords**: These are a piece of proverbial cake relative to the diminished chords. An [augmented triad](https://en.wikipedia.org/wiki/Augmented_triad) is 3 notes separated by major thirds. Ignoring enharmonics (as we do) there are only 3 different augmented chords. So throw on an `aug` button, hit it with `I` or `iii` and you'll get the same effect. The `+7` modifiers are still there if you want to play a really exotic chord.
+**Augmented chords**: These are a piece of proverbial cake relative to the diminished chords. An [augmented triad](https://en.wikipedia.org/wiki/Augmented_triad) is 3 notes separated by major thirds. Ignoring enharmonics (as I do) there are only 3 different augmented chords. So throw on an `aug` button, hit it with `I` or `iii` and you'll get the same effect. The `+7` modifiers are still there if you want to play a really exotic chord.
 
 **Sus4 chords**: In a [sus4 chord](https://en.wikipedia.org/wiki/Suspended_chord) the 3rd is removed and a perfect 4th added. Pretty straightforward unless you want to hack together a more general system to get `sus2` without extra buttons, but I'm cool with just a `sus4` for now.
 
@@ -263,9 +277,49 @@ Note that on a grounded pin keypad, the `+sus4` introduces ambiguity when presse
 
 I'm not sure how useful the `prev` button will be in this layout, because most back-and-forth passing chords are pretty easy to go between already. I add it here mostly because I don't know what else to put in that space. I can't have another typical modifier due to the paragraph above. I could have a parallel minor modifier that is only used with the `mod4` and `mod5` buttons to change key up or down by a minor 3rd easily. Or I could put another chord there, like the `VIb`.
 
+## On Second Construction
+
+This section is written much later. On the second construction attempt, I solved a lot of major issues.
+
+I started over building because the first build was cludgy and bad in its
+unfinished state. Here are the major changes in the second construction, in
+the software:
+
+ - Using 16 button keypad (4 column, 4 row pins, no weird ground pin
+ this time ;) This allows:
+ - Different button reading strategy: Use two dimensional array of
+ button states rather than row and column states. This allows a lot more
+ keypresses without ambiguity.
+ - Keymapping to chords substantially rethought. Now it doesn't use ANY
+ simultaneous keypresses, but considers some keys as "modifiers" which
+ don't do anything when pressed on their own, and "actuators" (maybe
+ find better name?) which when pressed immediately actuate a chord with
+ whatever modifiers are down. See the big comment in the code for the
+ layout.
+ - The above means that we were able to get rid of the `buffer_chord`
+ system entirely! :celebrate:
+ - Chords can now have up to 5 notes to allow for things like Dominant 9
+ chords. No reason it couldn't be more.
+ - Major power reduction by using pin 10 on the arduino to change
+ current flowing to the solenoids. The solenoids need lots more power to
+ pop up than they need to stay up, so every chord change starts at
+ `FULL_POWER` then drops power usage considerably to `LOW_POWER` after
+ `TICKS_AT_FULL_POWER` ticks.
+ - Pasted in the function `setPwmFrequency` to use on pin 10, because
+ the default, slower frequencies cause audible hums during `LOW_POWER`
+
+Major changes in the hardware that weren't mentioned in the software:
+
+ - I'm now soldering female header pin connectors rather than the components themselves into the soldering board. If I fry another Arduino Nano or break a keypad it will be a trivial swap-out rather than a solder-mess project-killer.
+ - Similarly, on each solenoid, I'm putting a jumper cable head on one of the wires. This way, it can be plugged in rather than soldered in. Same logic as above, and flexibility of rewiring on the fly if the autoharp strings are tuned to different pitches.
+ - I'm now using a [voltage regulator](https://www.amazon.com/DROK-Converter-5-3V-32V-Regulator-Transformer/dp/B078Q1624B/), which helps me fiddle with and monitor power better. It might not be necessary in the long run, but for a prototype it is _incredibly_ handy to simply bump the voltage up or down.
+ - I'm not trying to incororate LEDs this time around. Simpler design, more in my pay grade.
+
+ I'll update the Wiring and Components section at some point, it's outdated for now
+
 --------
 
-## Wiring and Components
+## Outdated Wiring and Components
 
 3 main topics here, which others have covered pretty well already so I don't need to. Click the links to read more.
 
@@ -290,7 +344,7 @@ The 4 "extra" outputs could be used to wire the 4 bottom strings of the autoharp
 Other than using 12V to power the arduino on the Vin pin, keep the 12V as far away from the arduino as possible. I fried one Nano by momentarily bridging a connection from 12V to the Nano's 5V pin.
 
 
-#### Components list
+#### Outdated Components list
 
 
  * I used [this SB1660 busboard](https://www.amazon.com/gp/product/B00LLOOA0U) for soldering a semi-permanent prototype.
@@ -306,5 +360,5 @@ Other than using 12V to power the arduino on the Vin pin, keep the 12V as far aw
 
 ## Code
 
-[Here's the code](https://github.com/kenanbit/smart-o-harp/blob/master/code/code.ino). It's fairly well-documented.
+[Here's the code](https://github.com/kenanbit/smart-o-harp/blob/master/code/code.ino). It's fairly straightforward.
 
