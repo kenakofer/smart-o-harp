@@ -315,6 +315,60 @@ Major changes in the hardware that weren't mentioned in the software:
  - I'm now using a [voltage regulator](https://www.amazon.com/DROK-Converter-5-3V-32V-Regulator-Transformer/dp/B078Q1624B/), which helps me fiddle with and monitor power better. It might not be necessary in the long run, but for a prototype it is _incredibly_ handy to simply bump the voltage up or down.
  - I'm not trying to incororate LEDs this time around. Simpler design, more in my pay grade.
 
+### Most recent keypad layout (4x4 buttons)
+
+My new keypad's hardware doesn't have ambiguity unless 3 or more button presses are at the corners of a rectangular area. This allows some clever setup of held (not simultaneous press!) modifier keys. Getting rid of simultinaety is huge I think.
+
+**Single press with single modifier**
+
+|     |     |     |     |
+| --- | --- | --- | --- |
+| VIIb | IV | I | V |
+| ii | vi | iii | vii° |
+| _Make Do_ | _Sus2_ | _Sus4_ | _Maj/Min_ |
+| _mM7_ | _MM7_ | _mm7_ | _Mm7_ |
+
+**Single press with double modifier in vertical stacks**
+
+|     |     |     |     |
+| --- | --- | --- | --- |
+| VIIb | IV | I | V |
+| ii | vi | iii | vii° |
+| _Dim_ | _Aug_ | _Dim7_ | _1/2 Dim 7_ |
+| _(^^^)_ | _(^^^)_ | _(^^^)_ | _(^^^)_ |
+
+
+Note that:
+
+ - The arrows _(^^^)_ mean that both modifiers must be pressed for the listed modifier to apply. Still, nothing will actuate until a chord button is pressed.
+ - Because these modifiers are vertically stacked, it is impossible for a single chord button to form a rectangular area, so hardware ambiguity is avoided.
+
+**Single press with double modifier in diagonal combinations**
+
+|     |     |     |     |
+| --- | --- | --- | --- |
+| VIIb | IV | I | V |
+| ii | vi | iii | vii° |
+| | | _Dom9_ | |
+|  |  |  | _(Dom9)_ |
+
+Note that:
+
+ - I'm not sure how well these combos will work ergonomically, so I'm only trying one for now. _Dom9_ means Root, M3, P5, m7, M9(M2).
+ - Once again, these diagonal combinations avoid hardware ambiguity when one of the chord buttons is pressed
+
+**Horizontal Double modifier as chord button:**
+
+|     |     |     |     |
+| --- | --- | --- | --- |
+| VIIb | IV | I | V |
+| ii | vi | iii | vii° |
+| | | VIb | (<<<) |
+|  |  | IIIb | (<<<) |
+
+ - These horizontally aligned modifiers would NOT work unambiguously with all chord buttons (If the `I` were pressed, it would look like `V` was also pressed), so it seems reasonable to actually make the modifiers actuate in combination with each other. This means that these particular chords can't have modifiers applied to them to make, for example, a VIb seventh chord.
+ - Not all slots are used, because most other chords we really want to be able to add other modifiers
+
  I'll update the Wiring and Components section at some point, it's outdated for now
 
 --------
