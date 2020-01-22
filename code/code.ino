@@ -19,7 +19,9 @@ const char *notes[] = {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb
 
 const int FULL_POWER = 0;
 const int NO_POWER = 255;
+//const int LOW_POWER = 1;
 const int LOW_POWER = 200;
+
 
 const int PWM_POWER_PIN = 10; // Available PWM pins (uno and nano): 3, 5, 6, 9, 10, 11
 const int LATCH_PIN = 13;  //Pin connected to latch pin (ST_CP) of 74HC595
@@ -65,14 +67,16 @@ void update_prev_chord() {
     }
 }
 
+const int NOTE_SOLENOID_ORDER[] = {0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+
 void actuate_current_chord() {
     // Get the byte representation of the chord's notes
     int bitsToSend = 0;
     for (int i=0; i<CHORD_LENGTH; i++) {
         if (current_chord[i] >= 0) {
-          bitsToSend += 1<<current_chord[i];
+          bitsToSend += 1<<NOTE_SOLENOID_ORDER[current_chord[i]];
           Serial.print("Adding ");
-          Serial.println(1<<current_chord[i]);
+          Serial.println(1<<NOTE_SOLENOID_ORDER[current_chord[i]]);
         }
     }
     if (bitsToSend == 0){
@@ -94,9 +98,9 @@ void actuate_current_chord() {
 
     // Start the shift register listening
     digitalWrite(LATCH_PIN, LOW);
-    // shift the bytes out, A to the first, B to the second:
-    shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, A);
+    // shift the bytes out, B to the first, A to the second:
     shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, B);
+    shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, A);
     // Stop listening, turn on the outputs
     digitalWrite(LATCH_PIN, HIGH);
 }
@@ -171,7 +175,6 @@ const int ROW_PIN_NUMBERS[] = { 5, 4, 3, 2 };
 int pin_states[COL_PIN_COUNT][ROW_PIN_COUNT];
 
 bool set_solenoid_power(const int amount) {
-  setPwmFrequency(PWM_POWER_PIN, 1);
   analogWrite(PWM_POWER_PIN, amount);
 }
 
@@ -214,6 +217,7 @@ void setup() {
     delay(100);
     Serial.begin(9600);
     Serial.println("Setting up pins...");
+    setPwmFrequency(PWM_POWER_PIN, 1);
     for (int i=0; i< COL_PIN_COUNT; i++) {
         pinMode(COL_PIN_NUMBERS[i], OUTPUT);
     }
@@ -387,7 +391,6 @@ void loop() {
       }
     } else {
         last_chord_change_tick = tick_counter;
-        set_solenoid_power(FULL_POWER);
         Serial.print(tick_counter);
         Serial.print(" ");
         for (int n=0; n<4; n++) {
@@ -400,6 +403,7 @@ void loop() {
 
         actuate_current_chord();
         Serial.println("Set current chord");
+        set_solenoid_power(FULL_POWER);
         update_prev_chord();
     }
 }
