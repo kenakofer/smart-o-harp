@@ -2,7 +2,12 @@ int current_key = 0; // The key the instrument starts in, with C being 0
 const int TICK_DURATION = 5; //How long (ms) between runs of the loop
 //const int TICK_DURATION = 500; //How long (ms) between runs of the loop
 
+const char *notes[] = {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"};
 const int CHORD_LENGTH = 5;
+
+// -1 means no note. The other indices can be looked up in the notes[] array
+// above, for each of these triads in the key of C. For example, a value of 2
+// in the key of C would be D, but a value of 2 in the key of G would be A.
 const int NONE[] = {-1, -1, -1, -1, -1};
 const int IV[] = {5, 9, 0, -1, -1};
 const int I[] = {0, 4, 7, -1, -1};
@@ -11,34 +16,34 @@ const int II[] = {2, 6, 9, -1, -1};
 const int VI[] = {9, 1, 4, -1, -1};
 const int III[] = {4, 8, 11, -1, -1};
 const int VII[] = {11, 3, 6, -1, -1};
-
 const int VIIb[] = {10, 2, 5, -1, -1};
 const int VIb[] = {8, 0, 3, -1, -1};
 const int IIIb[] = {3, 7, 10, -1, -1};
-const char *notes[] = {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"};
 
-const int FULL_POWER = 0;
-const int NO_POWER = 255;
-//const int LOW_POWER = 1;
-const int LOW_POWER = 200;
-int current_power = FULL_POWER;
+const int NOTE_SOLENOID_ORDER[] = {0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}; // From closest to arduino to farthest away, what semitone scale degree is on the pin. 0 is C, 1 is Db, etc. as seen in notes[]
+
+const int FULL_POWER = 0; // The PWM_POWER_PIN => OE pin duty cycle to get full power to the active solenoids. This means grounding the OE pin, letting the shift regitsers operate full-time
+const int LOW_POWER = 200; // By only having the 8-bit registers active some of the time, we use less power. Less power is needed to hold the solenoids in place.
+const int NO_POWER = 255; // Keeping the OE pin high disables the 8 bit shift registers
+const int SPEED_TO_FULL = 20; // After a chord change, how much should the duty cycle change per tick
+const int SPEED_TO_LOW = 10; // After a time after a chord change, how fast should the duty cycle go back to LOW_POWER
+const int TICKS_AT_FULL_POWER = 100; // How long before decreasing power after chord change.
 
 const int PWM_POWER_PIN = 10; // Available PWM pins (uno and nano): 3, 5, 6, 9, 10, 11
 const int LATCH_PIN = 13;  //Pin connected to latch pin (ST_CP) of 74HC595
 const int CLOCK_PIN = 12; //Pin connected to clock pin (SH_CP) of 74HC595
 const int DATA_PIN = 11; //Pin connected to Data in (DS) of 74HC595
 
-const int TICKS_AT_FULL_POWER = 100;
 const int TICKS_BETWEEN_KEY_CHANGES = 2; // Ticks over which a key change combo must NOT be pressed before another key change is allowed
+
+int current_power = FULL_POWER; // can go up and down incrementally between ticks
 
 int tick_counter = 0;  // Counts up with each loop();
 int last_chord_change_tick = 0; // The tick at which the last chord change happened.
 int last_key_change_tick = 0; // The tick at which the last key change happened.
 
-int current_chord[] = {-1, -1, -1, -1, -1};
-int prev_chord[] = {-1, -1, -1, -1, -1};
-
-bool just_changed_key = false; // Switches to allow keychange to only happen on new keypresses
+int current_chord[] = {-1, -1, -1, -1, -1}; // The chord actually actuated on the solenoids now or by the end of loop()
+int prev_chord[] = {-1, -1, -1, -1, -1}; // Last tick's current_chord. Used to tell if, in the current tick, we need to change the shift registers' states.
 
 bool is_same_chord(const int chord1[], const int chord2[]) {
     for (int i=0; i<CHORD_LENGTH; i++) {
@@ -66,8 +71,6 @@ void update_prev_chord() {
         prev_chord[i] = current_chord[i];
     }
 }
-
-const int NOTE_SOLENOID_ORDER[] = {0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
 
 void actuate_current_chord() {
     // Get the byte representation of the chord's notes
@@ -121,7 +124,7 @@ void set_current_chord_in_current_key(const int chord[]) {
 void set_current_chord(const int chord[]) {
     for (int i=0; i<CHORD_LENGTH; i++) {
             current_chord[i] = chord[i];
-    } 
+    }
 }
 
 // All the modifiers change the chord in place
@@ -388,14 +391,14 @@ void loop() {
     if (is_same_chord(current_chord, prev_chord)) {
       if (tick_counter - last_chord_change_tick > TICKS_AT_FULL_POWER) {
         if (current_power < LOW_POWER) {
-            current_power += 10;
+            current_power += SPEED_TO_LOW;
             if (current_power > LOW_POWER)
               current_power = LOW_POWER;
             set_solenoid_power(current_power);
         }
       } else {
         if (current_power > FULL_POWER) {
-            current_power -= 10;
+            current_power -= SPEED_TO_FULL;
             if (current_power < FULL_POWER)
               current_power = FULL_POWER;
             set_solenoid_power(current_power);
