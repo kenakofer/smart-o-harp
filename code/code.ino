@@ -21,7 +21,7 @@ const int FULL_POWER = 0;
 const int NO_POWER = 255;
 //const int LOW_POWER = 1;
 const int LOW_POWER = 200;
-
+int current_power = FULL_POWER;
 
 const int PWM_POWER_PIN = 10; // Available PWM pins (uno and nano): 3, 5, 6, 9, 10, 11
 const int LATCH_PIN = 13;  //Pin connected to latch pin (ST_CP) of 74HC595
@@ -229,7 +229,7 @@ void setup() {
     pinMode(DATA_PIN, OUTPUT);
     pinMode(CLOCK_PIN, OUTPUT);
 
-    set_solenoid_power(FULL_POWER);
+    set_solenoid_power(current_power);
 
     Serial.println("Finished with setup()");
 }
@@ -387,7 +387,19 @@ void loop() {
 
     if (is_same_chord(current_chord, prev_chord)) {
       if (tick_counter - last_chord_change_tick > TICKS_AT_FULL_POWER) {
-        set_solenoid_power(LOW_POWER);
+        if (current_power < LOW_POWER) {
+            current_power += 10;
+            if (current_power > LOW_POWER)
+              current_power = LOW_POWER;
+            set_solenoid_power(current_power);
+        }
+      } else {
+        if (current_power > FULL_POWER) {
+            current_power -= 10;
+            if (current_power < FULL_POWER)
+              current_power = FULL_POWER;
+            set_solenoid_power(current_power);
+        }
       }
     } else {
         last_chord_change_tick = tick_counter;
@@ -403,7 +415,6 @@ void loop() {
 
         actuate_current_chord();
         Serial.println("Set current chord");
-        set_solenoid_power(FULL_POWER);
         update_prev_chord();
     }
 }
