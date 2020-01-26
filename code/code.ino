@@ -267,7 +267,7 @@ void loop() {
     //       col1       col2        col3        col4
     // row1: VIIb       IV          I           V
     // row2: ii         vi          iii         vii°
-    // row3: Make Do    Sus2        Sus4        Maj/Min
+    // row3: Make Do    Dom9        Sus4        Maj/Min
     // row4: mM7        MM7         mm7         Mm7
     //
     // Single press with double modifier (vertical combo):
@@ -278,13 +278,13 @@ void loop() {
     // row3: Dim        Aug         Dim7        1/2 Dim 7
     // row4: (^^^)      (^^^)       (^^^)       (^^^)
     //
-    // Single press with double modifier (diagonal combo):
+    // Single press with double modifier (diagonal combo) (None currently):
     //
     //       col1       col2        col3        col4
     // row1: VIIb       IV          I           V
     // row2: ii         vi          iii         vii°
-    // row3:                        Dom9
-    // row4:                                    (Dom9)
+    // row3:
+    // row4:
     //
     // Double modifier as actuator (horizontal):
     //
@@ -348,16 +348,14 @@ void loop() {
             make_aug(current_chord);
         } else if (is_pressed(3,2) && is_pressed(3,3)) {
             make_dim(current_chord);
-        } else if (is_pressed(1,2) && is_pressed(0,3)) {
-            make_major(current_chord);
-            add_min7(current_chord);
-            add_maj9(current_chord);
         } else if (is_pressed(0,2)) {
             swap_major_minor(current_chord);
         } else if (is_pressed(1,2)) {
             make_sus4(current_chord);
         } else if (is_pressed(2,2)) {
-            make_sus2(current_chord);
+            make_major(current_chord);
+            add_min7(current_chord);
+            add_maj9(current_chord);
         } else if (is_pressed(0,3)) {
             make_major(current_chord);
             add_min7(current_chord);
