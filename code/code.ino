@@ -1,5 +1,4 @@
 const int TICK_DURATION = 5; //How long (ms) between runs of the loop
-//const int TICK_DURATION = 500; //How long (ms) between runs of the loop
 
 const char *notes[] = {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"};
 const int CHORD_LENGTH = 5;
@@ -207,7 +206,7 @@ void update_pin_states() {
 }
 
 bool is_pressed(int row, int col) {
-    return pin_states[col][row];
+    return pin_states[row][3-col];
 }
 
 void setup() {
