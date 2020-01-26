@@ -21,7 +21,8 @@ const int IIIb[] = {3, 7, 10, -1, -1};
 const int NOTE_SOLENOID_ORDER[] = {0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}; // From closest to arduino to farthest away, what semitone scale degree is on the pin. 0 is C, 1 is Db, etc. as seen in notes[]
 
 const int FULL_POWER = 0; // The PWM_POWER_PIN => OE pin duty cycle to get full power to the active solenoids. This means grounding the OE pin, letting the shift regitsers operate full-time
-const int LOW_POWER = 200; // By only having the 8-bit registers active some of the time, we use less power. Less power is needed to hold the solenoids in place.
+const int MID_POWER = 200; // By only having the 8-bit registers active some of the time, we use less power. Less power is needed to hold the solenoids in place.
+const int LOW_POWER = 235; // This is the lowest level of power that can maybe hold the solenoids. Only used in opening all strings.
 const int NO_POWER = 255; // Keeping the OE pin high disables the 8 bit shift registers
 const int TICKS_AT_FULL_POWER = 5; // How long before decreasing power after chord change.
 
@@ -84,22 +85,22 @@ void actuate_current_chord() {
           Serial.println(1<<NOTE_SOLENOID_ORDER[current_chord[i]]);
         }
     }
-    if (bitsToSend == 0){
+    /*if (bitsToSend == 0){
       Serial.println("Will not actuate: Chord is NONE");
       return;
-    }
+    }*/
     for (int n=0; n<CHORD_LENGTH; n++) {
       Serial.print(current_chord[n]);
       Serial.print(" ");
     }
     Serial.println();
 
-    byte A = bitsToSend & 0x00ff;
-    byte B = (bitsToSend & 0xff00) >> 8;
+    send_bits(bitsToSend);
+}
 
-    Serial.print("Actuating chord with bytes: ");
-    Serial.println(A);
-    Serial.println(B);
+void send_bits(const int bits) {
+    byte A = bits & 0x00ff;
+    byte B = (bits & 0xff00) >> 8;
 
     // Start the shift register listening
     digitalWrite(LATCH_PIN, LOW);
@@ -127,6 +128,44 @@ void set_current_chord(const int chord[]) {
     for (int i=0; i<CHORD_LENGTH; i++) {
             current_chord[i] = chord[i];
     }
+}
+
+// This function takes control for a (hopefully small) period of time. It doesn't really work, and should not be used in its current state.
+void open_all_strings() {
+    Serial.println("open_all_strings()");
+    const int MICROSECOND_DELAY = 100;
+    const int DELAYS_TO_RAISE = 400;
+    const int LOW_POWER_INTERVAL = 8;
+    const int ALL_BITS = (1<<13) - 1; // => 111 111 111 111 I think
+
+    // Set to full power so communication goes correctly
+    current_power = FULL_POWER;
+    set_solenoid_power(current_power);
+
+    // For each note needing to be opened
+    for (int i=0; i<12; i++) {
+        for (int count=0; count < DELAYS_TO_RAISE; count++) {
+            // All pins get power this iteration
+            if (count % LOW_POWER_INTERVAL == 0) {
+                send_bits(ALL_BITS);
+            } else {
+                // Only the to-be-raised notes gets full power this time.
+                send_bits(1<<i);
+            }
+            delayMicroseconds(MICROSECOND_DELAY);
+        }
+    }
+    // Now all notes should be raised.
+    // Leave all bits on, and LOW_POWER
+    send_bits(ALL_BITS);
+    current_power = LOW_POWER;
+    set_solenoid_power(current_power);
+
+    // Change both current chord and prev_chord to NONE so it isn't overwritten.
+    set_current_chord(NONE);
+    update_prev_chord();
+
+    Serial.println("Finished open_all_strings()");
 }
 
 // All the modifiers change the chord in place
@@ -292,7 +331,7 @@ void loop() {
     // row1:
     // row2:
     // row3:                        VIb         (<<<)
-    // row4:                        IIIb        (<<<)
+    // row4: NONE       (<<<)       IIIb        (<<<)
 
     bool check_modifiers = false;
 
@@ -334,6 +373,8 @@ void loop() {
     } else if (is_pressed(0,3) && is_pressed(1,3)) {
         set_current_chord_in_current_key(IIIb);
         make_major(current_chord);
+    } else if (is_pressed(2,3) && is_pressed(3,3)) {
+        set_current_chord(NONE);
     }
 
 
@@ -381,8 +422,9 @@ void loop() {
 
     if (is_same_chord(current_chord, prev_chord)) {
       if (tick_counter - last_chord_change_tick > TICKS_AT_FULL_POWER) {
-        if (current_power != LOW_POWER) {
-          current_power = LOW_POWER;
+        if (current_power != MID_POWER && !is_same_chord(current_chord, NONE)) {
+          Serial.println("Setting MID_POWER");
+          current_power = MID_POWER;
           set_solenoid_power(current_power);
         }
       }
