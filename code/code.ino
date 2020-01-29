@@ -62,11 +62,11 @@ bool is_same_chord(const int chord1[], const int chord2[]) {
 }
 
 bool is_minor(const int chord[]) {
-    return (chord[1] == (chord[0] + 3) % 12);
+    return (chord[1] == (chord[0] + 3) % 12) && (chord[2] == (chord[0] + 7) % 12);
 }
 
 bool is_major(const int chord[]) {
-    return (chord[1] == (chord[0] + 4) % 12);
+    return (chord[1] == (chord[0] + 4) % 12) && (chord[2] == (chord[0] + 7) % 12);
 }
 
 void update_prev_chord() {
@@ -177,12 +177,13 @@ void make_minor(int chord[]) {
 }
 void make_major(int chord[]) {
     chord[1] = (chord[0] + 4) % 12;
+    chord[2] = (chord[0] + 7) % 12;
 }
 void swap_major_minor(int chord[]) {
-    if (is_minor(chord)) {
-        make_major(chord);
-    } else {
+    if (is_major(chord)) {
         make_minor(chord);
+    } else {
+        make_major(chord);
     }
 }
 void make_sus4(int chord[]) {
