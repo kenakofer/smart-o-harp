@@ -205,7 +205,7 @@ void add_min7(int chord[]) {
 void add_maj7(int chord[]) {
     chord[3] = (chord[0] + 11) % 12;
 }
-void add_maj9(int chord[]) {
+void add_maj2(int chord[]) {
     chord[4] = (chord[0] + 14) % 12;
 }
 
@@ -306,7 +306,7 @@ void loop() {
     //       col1       col2        col3        col4
     // row1: VIIb       IV          I           V
     // row2: ii         vi          iii         vii°
-    // row3: Make Do    Dom9        Sus4        Maj/Min
+    // row3: Make Do    Add2        Sus4        Maj/Min
     // row4: mM7        MM7         mm7         Mm7
     //
     // Single press with double modifier (vertical combo):
@@ -394,9 +394,7 @@ void loop() {
         } else if (is_pressed(1,2)) {
             make_sus4(current_chord);
         } else if (is_pressed(2,2)) {
-            make_major(current_chord);
-            add_min7(current_chord);
-            add_maj9(current_chord);
+            add_maj2(current_chord);
         } else if (is_pressed(0,3)) {
             make_major(current_chord);
             add_min7(current_chord);
