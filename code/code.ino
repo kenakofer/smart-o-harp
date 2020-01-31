@@ -17,6 +17,8 @@ const int VII[] = {11, 3, 6, -1, -1};
 const int VIIb[] = {10, 2, 5, -1, -1};
 const int VIb[] = {8, 0, 3, -1, -1};
 const int IIIb[] = {3, 7, 10, -1, -1};
+const int Isharp[] = {1, 5, 8, -1, -1};
+const int IVsharp[] = {6, 10, 1, -1, -1};
 
 const int NOTE_SOLENOID_ORDER[] = {0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}; // From closest to arduino to farthest away, what semitone scale degree is on the pin. 0 is C, 1 is Db, etc. as seen in notes[]
 
@@ -318,21 +320,21 @@ void loop() {
     // row3: Dim        Aug         Dim7        1/2 Dim 7
     // row4: (^^^)      (^^^)       (^^^)       (^^^)
     //
-    // Single press with double modifier (diagonal combo) (None currently):
-    //
-    //       col1       col2        col3        col4
-    // row1: VIIb       IV          I           V
-    // row2: ii         vi          iii         vii°
-    // row3:
-    // row4:
-    //
     // Double modifier as actuator (horizontal):
     //
     //       col1       col2        col3        col4
     // row1:
     // row2:
-    // row3:                        VIb         (<<<)
-    // row4: NONE       (<<<)       IIIb        (<<<)
+    // row3: IV#        (<<<)       IIIb        (<<<)
+    // row4: I#         (<<<)       VIb         (<<<)
+    //
+    // Double modifier as actuator (horizontal) (continued):
+    //
+    //       col1       col2        col3        col4
+    // row1:
+    // row2:
+    // row3:            NONE        (<<<)
+    // row4:
 
     bool check_modifiers = false;
 
@@ -369,12 +371,18 @@ void loop() {
         make_minor(current_chord);
         check_modifiers = true;
     } else if (is_pressed(0,2) && is_pressed(1,2)) {
-        set_current_chord_in_current_key(VIb);
-        make_major(current_chord);
-    } else if (is_pressed(0,3) && is_pressed(1,3)) {
         set_current_chord_in_current_key(IIIb);
         make_major(current_chord);
+    } else if (is_pressed(0,3) && is_pressed(1,3)) {
+        set_current_chord_in_current_key(VIb);
+        make_major(current_chord);
+    } else if (is_pressed(2,2) && is_pressed(3,2)) {
+        set_current_chord_in_current_key(IVsharp);
+        make_major(current_chord);
     } else if (is_pressed(2,3) && is_pressed(3,3)) {
+        set_current_chord_in_current_key(Isharp);
+        make_major(current_chord);
+    } else if (is_pressed(1,2) && is_pressed(2,2)) {
         set_current_chord(NONE);
     }
 
