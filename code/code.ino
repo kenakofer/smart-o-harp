@@ -49,7 +49,7 @@ int tick_counter = 0;  // Counts up with each loop();
 int last_chord_change_tick = 0; // The tick at which the last chord change happened.
 int last_key_change_tick = 0; // The tick at which the last key change happened.
 int current_chord[] = {-1, -1, -1, -1, -1}; // The chord actually actuated on the solenoids now or by the end of loop(). Starts as a nothing chord
-int prev_chord[] = {-1, -1, -1, -1, -1}; // Last tick's current_chord. Used to tell if, in the current tick, we need to change the shift registers' states.
+int last_tick_chord[] = {-1, -1, -1, -1, -1}; // Last tick's current_chord. Used to tell if, in the current tick, we need to change the shift registers' states.
 
 int pin_states[COL_PIN_COUNT][ROW_PIN_COUNT];
 
@@ -71,9 +71,9 @@ bool is_major(const int chord[]) {
     return (chord[1] == (chord[0] + 4) % 12) && (chord[2] == (chord[0] + 7) % 12);
 }
 
-void update_prev_chord() {
+void update_last_tick_chord() {
     for (int i=0; i<CHORD_LENGTH; i++) {
-        prev_chord[i] = current_chord[i];
+        last_tick_chord[i] = current_chord[i];
     }
 }
 
@@ -163,9 +163,9 @@ void open_all_strings() {
     current_power = LOW_POWER;
     set_solenoid_power(current_power);
 
-    // Change both current chord and prev_chord to NONE so it isn't overwritten.
+    // Change both current chord and last_tick_chord to NONE so it isn't overwritten.
     set_current_chord(NONE);
-    update_prev_chord();
+    update_last_tick_chord();
 
     Serial.println("Finished open_all_strings()");
 }
@@ -423,11 +423,11 @@ void loop() {
                 current_key = current_chord[0] % 12;
             }
             last_key_change_tick = tick_counter;
-            set_current_chord(prev_chord); // Use of the change key button means no change in chord
+            set_current_chord(last_tick_chord); // Use of the change key button means no change in chord
         }
     }
 
-    if (is_same_chord(current_chord, prev_chord)) {
+    if (is_same_chord(current_chord, last_tick_chord)) {
       if (tick_counter - last_chord_change_tick > TICKS_AT_FULL_POWER) {
         if (current_power != MID_POWER && !is_same_chord(current_chord, NONE)) {
           Serial.println("Setting MID_POWER");
@@ -457,7 +457,7 @@ void loop() {
 
         actuate_current_chord();
         Serial.println("Set current chord");
-        update_prev_chord();
+        update_last_tick_chord();
     }
 }
 
