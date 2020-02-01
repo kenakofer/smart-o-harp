@@ -302,39 +302,47 @@ void loop() {
     tick_counter += 1;
     update_pin_states();
 
+    // is_pressed(c, r) key:
+    //
+    //       |_  col3  _|_  col2  _|_   col1  _|_  col0  _|
+    // row0: |_ (0,3)  _|_ (0,2)  _|_  (0,1)  _|_ (0,0)  _|
+    // row1: |_ (1,3)  _|_ (1,2) __|__ (1,1)  _|_ (1,0) __|
+    // row2: |_ (2,3)  _|_ (2,2)  _|_  (2,1)  _|_ (2,0)  _|
+    // row3: |__(3,3)  _|_ (3,2) __|__ (3,1)  _|_ (3,0) __|
+
     // Exhaustive chord layout 16 button edition
     //
-    // Single press with single modifier:
+    // Single press / double modifier as actuator (horizontal):
     //
-    //       col1       col2        col3        col4
-    // row1: VIIb       IV          I           V
-    // row2: ii         vi          iii         vii°
-    // row3: Make Do    Add2        Sus4        Maj/Min
-    // row4: mM7        MM7         mm7         Mm7
-    //
-    // Single press with double modifier (vertical combo):
-    //
-    //       col1       col2        col3        col4
-    // row1: VIIb       IV          I           V
-    // row2: ii         vi          iii         vii°
-    // row3: Dim        Aug         Dim7        1/2 Dim 7
-    // row4: (^^^)      (^^^)       (^^^)       (^^^)
+    //       |_  col3  _|_  col2  _|_   col1  _|_  col0  _|
+    // row0: |_  VIIb  _|_  IV    _|_   I     _|_  V     _|
+    // row1: |__ ii    _|_  vi   __|__  iii   _|_  vii° __|
+    // row2: |__       IV#       __|__        IIIb      __|
+    // row3: |__       I#        __|__        VIb       __|
     //
     // Double modifier as actuator (horizontal):
     //
-    //       col1       col2        col3        col4
-    // row1:
-    // row2:
-    // row3: IV#        (<<<)       IIIb        (<<<)
-    // row4: I#         (<<<)       VIb         (<<<)
+    //       |_  col3  _|_  col2  _|_   col1  _|_  col0  _|
+    // row0: |_                                          _|
+    // row1: |_         ____                ____         _|
+    // row2: |_         |__      NONE        __|         _|
+    // row3: |_         |__                  __|         _|
     //
-    // Double modifier as actuator (horizontal) (continued):
+    // Single modifiers for single presses
     //
-    //       col1       col2        col3        col4
-    // row1:
-    // row2:
-    // row3:            NONE        (<<<)
-    // row4:
+    //       |_  col3  _|_  col2  _|_   col1  _|_  col0  _|
+    // row0: |_                                          _|
+    // row1: |__       ___        ___         ___        _|
+    // row2: |_ Make Do_|_  Add2  _|_  Sus4   _|_ Maj/min_|
+    // row3: |_  mM7   _|_  MM7   _|_  mm7    _|_  Mm7   _|
+
+    // Double modifiers for single presses (vertical combo):
+    //
+    //       |_  col3  _|_  col2  _|_   col1  _|_  col0  _|
+    // row0: |_                                          _|
+    // row1: |__       ___        ___         ___        _|
+    // row2: |   Dim    |   Aug    |   Dim7    | 1/2 Dim7 |
+    // row3: |_        _|_        _|_         _|_        _|
 
     bool check_modifiers = false;
 
