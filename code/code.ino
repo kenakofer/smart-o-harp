@@ -50,6 +50,7 @@ int last_chord_change_tick = 0; // The tick at which the last chord change happe
 int last_key_change_tick = 0; // The tick at which the last key change happened.
 int current_chord[] = {-1, -1, -1, -1, -1}; // The chord actually actuated on the solenoids now or by the end of loop(). Starts as a nothing chord
 int last_tick_chord[] = {-1, -1, -1, -1, -1}; // Last tick's current_chord. Used to tell if, in the current tick, we need to change the shift registers' states.
+int prev_chord[] = {-1, -1, -1, -1, -1}; // The most recently actuated chord that is different from the current one.
 
 int pin_states[COL_PIN_COUNT][ROW_PIN_COUNT];
 
@@ -74,6 +75,12 @@ bool is_major(const int chord[]) {
 void update_last_tick_chord() {
     for (int i=0; i<CHORD_LENGTH; i++) {
         last_tick_chord[i] = current_chord[i];
+    }
+}
+
+void update_prev_chord() {
+    for (int i=0; i<CHORD_LENGTH; i++) {
+        prev_chord = last_tick_chord[i]
     }
 }
 
@@ -326,7 +333,7 @@ void loop() {
     // row0: |_                                          _|
     // row1: |_         ____                ____         _|
     // row2: |_         |__      NONE        __|         _|
-    // row3: |_         |__                  __|         _|
+    // row3: |_         |__      PREV        __|         _|
     //
     // Single modifiers for single presses
     //
@@ -392,6 +399,8 @@ void loop() {
         make_major(current_chord);
     } else if (is_pressed(1,2) && is_pressed(2,2)) {
         set_current_chord(NONE);
+    } else if (is_pressed(1,3) && is_pressed(2,3)) {
+        set_current_chord(prev_chord);
     }
 
 
@@ -445,6 +454,10 @@ void loop() {
       }
     } else {
         last_chord_change_tick = tick_counter;
+
+        // Since current_chord does not equal last_tick_chord, we want to store
+        // last_tick_chord as the new prev_chord
+        update_prev_chord();
 
         Serial.print(tick_counter);
         Serial.print(" ");
