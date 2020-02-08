@@ -33,7 +33,7 @@ const int LATCH_PIN = 13;  //Pin connected to latch pin (ST_CP) of 74HC595
 const int CLOCK_PIN = 12; //Pin connected to clock pin (SH_CP) of 74HC595
 const int DATA_PIN = 11; //Pin connected to Data in (DS) of 74HC595
 
-const int TICKS_BETWEEN_KEY_CHANGES = 2; // Ticks over which a key change combo must NOT be pressed before another key change is allowed
+const int TICKS_BETWEEN_ONPRESS_ACTIONS = 4; // Ticks over which a key change combo, PREV keypress, or other toggle must NOT be pressed before another such change is allowed
 
 const int COL_PIN_COUNT = 4;
 const int COL_PIN_NUMBERS[] = { 9, 8, 7, 6 };
@@ -47,10 +47,11 @@ int current_key = 0; // The key the instrument starts in, with C being 0
 int current_power = FULL_POWER; // can go up and down incrementally between ticks
 int tick_counter = 0;  // Counts up with each loop();
 int last_chord_change_tick = 0; // The tick at which the last chord change happened.
-int last_key_change_tick = 0; // The tick at which the last key change happened.
+int last_onpress_action = 0; // The tick at which the last key change happened.
 int current_chord[] = {-1, -1, -1, -1, -1}; // The chord actually actuated on the solenoids now or by the end of loop(). Starts as a nothing chord
 int last_tick_chord[] = {-1, -1, -1, -1, -1}; // Last tick's current_chord. Used to tell if, in the current tick, we need to change the shift registers' states.
 int prev_chord[] = {-1, -1, -1, -1, -1}; // The most recently actuated chord that is different from the current one.
+bool auto_play = false; // When true, changing chords will bounce the new active solenoids on the strings, softly sounding the new chord.
 
 int pin_states[COL_PIN_COUNT][ROW_PIN_COUNT];
 
@@ -80,7 +81,7 @@ void update_last_tick_chord() {
 
 void update_prev_chord() {
     for (int i=0; i<CHORD_LENGTH; i++) {
-        prev_chord = last_tick_chord[i]
+        prev_chord[i] = last_tick_chord[i];
     }
 }
 
@@ -331,8 +332,8 @@ void loop() {
     //
     //       |_  col3  _|_  col2  _|_   col1  _|_  col0  _|
     // row0: |_                                          _|
-    // row1: |_         ____                ____         _|
-    // row2: |_         |__      NONE        __|         _|
+    // row1: |_       ______                ______       _|
+    // row2:  _Autoplay_|__      NONE        __|_Autoplay_ 
     // row3: |_         |__      PREV        __|         _|
     //
     // Single modifiers for single presses
@@ -399,8 +400,18 @@ void loop() {
         make_major(current_chord);
     } else if (is_pressed(1,2) && is_pressed(2,2)) {
         set_current_chord(NONE);
+    } else if (is_pressed(0,2) && is_pressed(3,2)) {
+        if (tick_counter - last_onpress_action > TICKS_BETWEEN_ONPRESS_ACTIONS) {
+            Serial.print("Toggling auto_play");
+            auto_play = !auto_play;
+        }
+        last_onpress_action = tick_counter;
+        set_current_chord(last_tick_chord); // Use of the change key button means no change in chord
     } else if (is_pressed(1,3) && is_pressed(2,3)) {
-        set_current_chord(prev_chord);
+        if (tick_counter - last_onpress_action > TICKS_BETWEEN_ONPRESS_ACTIONS) {
+            set_current_chord(prev_chord);
+        }
+        last_onpress_action = tick_counter;
     }
 
 
@@ -434,12 +445,12 @@ void loop() {
             make_minor(current_chord);
             add_maj7(current_chord);
         } else if (is_pressed(3,2)) {
-            if (tick_counter - last_key_change_tick > TICKS_BETWEEN_KEY_CHANGES) {
+            if (tick_counter - last_onpress_action > TICKS_BETWEEN_ONPRESS_ACTIONS) {
                 Serial.print("Changing key to: ");
                 Serial.print(notes[current_chord[0]]);
                 current_key = current_chord[0] % 12;
             }
-            last_key_change_tick = tick_counter;
+            last_onpress_action = tick_counter;
             set_current_chord(last_tick_chord); // Use of the change key button means no change in chord
         }
     }
@@ -479,6 +490,13 @@ void loop() {
         actuate_current_chord();
         Serial.println("Set current chord");
         update_last_tick_chord();
+
+
+        if (auto_play) {
+          set_solenoid_power(NO_POWER);
+          delay(20);
+          set_solenoid_power(FULL_POWER);
+        }
     }
 }
 
