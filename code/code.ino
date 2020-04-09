@@ -328,6 +328,22 @@ void loop() {
     // row2: |__       IV#       __|__        IIIb      __|
     // row3: |__       I#        __|__        VIb       __|
     //
+    // Double press as actuator (adjacent fifths):
+    //
+    //       |_  col3  _|_  col2  _|_   col1  _|_  col0  _|
+    // row0: |_        IV7        _|_          V7        _|
+    // row1: |__       VI7       __|__        VII7    ° __|
+    // row2: |__                 __|__                  __|
+    // row3: |__                 __|__                  __|
+    //
+    // (cont.)
+    //
+    //       |_  col3  _|_  col2  _|_   col1  _|_  col0  _|
+    // row0: |_        _|_         I7         _|_    II7
+    // row1:   II7     _|_        III7        _|_       __|
+    // row2: |__                 __|__                  __|
+    // row3: |__                 __|__                  __|
+    //
     // Double modifier as actuator (horizontal):
     //
     //       |_  col3  _|_  col2  _|_   col1  _|_  col0  _|
@@ -353,8 +369,37 @@ void loop() {
     // row3: |_        _|_        _|_         _|_        _|
 
     bool check_modifiers = false;
-
-    if (is_pressed(0,0)) {
+    // Double presses
+    if (is_pressed(0,0) && is_pressed(1,0)) {
+        set_current_chord_in_current_key(V);
+        make_major(current_chord);
+        add_min7(current_chord);
+    } else if (is_pressed(1,0) && is_pressed(2,0)) {
+        set_current_chord_in_current_key(I);
+        make_major(current_chord);
+        add_min7(current_chord);
+    } else if (is_pressed(2,0) && is_pressed(3,0)) {
+        set_current_chord_in_current_key(IV);
+        make_major(current_chord);
+        add_min7(current_chord);
+    } else if (is_pressed(0,1) && is_pressed(1,1)) {
+        set_current_chord_in_current_key(VII);
+        make_major(current_chord);
+        add_min7(current_chord);
+    } else if (is_pressed(1,1) && is_pressed(2,1)) {
+        set_current_chord_in_current_key(III);
+        make_major(current_chord);
+        add_min7(current_chord);
+    } else if (is_pressed(2,1) && is_pressed(3,1)) {
+        set_current_chord_in_current_key(VI);
+        make_major(current_chord);
+        add_min7(current_chord);
+    } else if (is_pressed(3,1) && is_pressed(0,0)) {
+        set_current_chord_in_current_key(II);
+        make_major(current_chord);
+        add_min7(current_chord);
+    // Single presses (possible modifiers)
+    } else if (is_pressed(0,0)) {
         set_current_chord_in_current_key(V);
         make_major(current_chord);
         check_modifiers = true;
@@ -386,6 +431,7 @@ void loop() {
         set_current_chord_in_current_key(II);
         make_minor(current_chord);
         check_modifiers = true;
+    // Double modifier as actuator
     } else if (is_pressed(0,2) && is_pressed(1,2)) {
         set_current_chord_in_current_key(IIIb);
         make_major(current_chord);
