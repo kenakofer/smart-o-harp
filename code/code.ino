@@ -23,10 +23,10 @@ const int IVsharp[] = {6, 10, 1, -1, -1};
 const int NOTE_SOLENOID_ORDER[] = {0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}; // From closest to arduino to farthest away, what semitone scale degree is on the pin. 0 is C, 1 is Db, etc. as seen in notes[]
 
 const int FULL_POWER = 0; // The PWM_POWER_PIN => OE pin duty cycle to get full power to the active solenoids. This means grounding the OE pin, letting the shift regitsers operate full-time
-const int MID_POWER = 200; // By only having the 8-bit registers active some of the time, we use less power. Less power is needed to hold the solenoids in place.
+const int MID_POWER = 100; // By only having the 8-bit registers active some of the time, we use less power. Less power is needed to hold the solenoids in place.
 const int LOW_POWER = 235; // This is the lowest level of power that can maybe hold the solenoids. Only used in opening all strings.
 const int NO_POWER = 255; // Keeping the OE pin high disables the 8 bit shift registers
-const int TICKS_AT_FULL_POWER = 5; // How long before decreasing power after chord change.
+const int TICKS_AT_FULL_POWER = 10; // How long before decreasing power after chord change.
 
 const int PWM_POWER_PIN = 10; // Available PWM pins (uno and nano): 3, 5, 6, 9, 10, 11
 const int LATCH_PIN = 13;  //Pin connected to latch pin (ST_CP) of 74HC595
@@ -41,6 +41,8 @@ const int COL_PIN_NUMBERS[] = { 9, 8, 7, 6 };
 const int ROW_PIN_COUNT = 4;
 const int ROW_PIN_NUMBERS[] = { 5, 4, 3, 2 };
 
+const bool KEYPAD_FLIP_VERTICAL = false; // Set to true if the keypad is installed flipped vertically
+const bool KEYPAD_FLIP_HORIZONTAL = false; // Set to true if the keypad is installed flipped horizontally
 
 int current_key = 0; // The key the instrument starts in, with C being 0
 
@@ -54,7 +56,6 @@ int prev_chord[] = {-1, -1, -1, -1, -1}; // The most recently actuated chord tha
 bool auto_play = false; // When true, changing chords will bounce the new active solenoids on the strings, softly sounding the new chord.
 
 int pin_states[COL_PIN_COUNT][ROW_PIN_COUNT];
-
 
 bool is_same_chord(const int chord1[], const int chord2[]) {
     for (int i=0; i<CHORD_LENGTH; i++) {
@@ -256,7 +257,13 @@ void update_pin_states() {
 }
 
 bool is_pressed(int row, int col) {
-    return pin_states[row][3-col];
+    if (KEYPAD_FLIP_VERTICAL) {
+      row = 3 - row;
+    }
+    if (KEYPAD_FLIP_HORIZONTAL) {
+      col = 3 - col;
+    }
+    return pin_states[row][col];
 }
 
 void setup() {
@@ -276,6 +283,9 @@ void setup() {
     pinMode(CLOCK_PIN, OUTPUT);
 
     set_solenoid_power(current_power);
+    set_current_chord(NONE);
+    actuate_current_chord();
+    update_last_tick_chord();
 
     Serial.println("Finished with setup()");
 }
@@ -460,7 +470,6 @@ void loop() {
         last_onpress_action = tick_counter;
     }
 
-
     if (check_modifiers) {
         if (is_pressed(0,2) && is_pressed(0,3)) {
             make_dim(current_chord);
@@ -536,7 +545,6 @@ void loop() {
         actuate_current_chord();
         Serial.println("Set current chord");
         update_last_tick_chord();
-
 
         if (auto_play) {
           set_solenoid_power(NO_POWER);
