@@ -23,7 +23,7 @@ const int IVsharp[] = {6, 10, 1, -1, -1};
 const int NOTE_SOLENOID_ORDER[] = {0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}; // From closest to arduino to farthest away, what semitone scale degree is on the pin. 0 is C, 1 is Db, etc. as seen in notes[]
 
 const int FULL_POWER = 0; // The PWM_POWER_PIN => OE pin duty cycle to get full power to the active solenoids. This means grounding the OE pin, letting the shift regitsers operate full-time
-const int MID_POWER = 100; // By only having the 8-bit registers active some of the time, we use less power. Less power is needed to hold the solenoids in place.
+const int MID_POWER = 50; // By only having the 8-bit registers active some of the time, we use less power. Less power is needed to hold the solenoids in place.
 const int LOW_POWER = 235; // This is the lowest level of power that can maybe hold the solenoids. Only used in opening all strings.
 const int NO_POWER = 255; // Keeping the OE pin high disables the 8 bit shift registers
 const int TICKS_AT_FULL_POWER = 10; // How long before decreasing power after chord change.
